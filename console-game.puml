@@ -1,0 +1,25 @@
+@startuml tennis_gameplay
+
+class ConsoleGameView{}
+abstract class Command {
+    String name
+    String description
+    void execute()
+}
+enum CommandType {
+    START_MATCH
+    END_MATCH
+    ADD_PLAYER
+    REMOVE_PLAYER
+    START_SET
+    END_SET
+    START_GAME
+    END_GAME
+    ADD_POINT
+}
+
+ConsoleGameView o--> "1" Gameplay
+ConsoleGameView -> "0..*" Command
+Command <|-- StartMatchCommand
+
+@enduml

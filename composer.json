@@ -1,0 +1,31 @@
+{
+  "name": "javier/tennis",
+  "type": "project",
+  "require-dev": {
+    "mockery/mockery": "^1.6",
+    "phpstan/phpstan": "^2.1",
+    "peckphp/peck": "^0.1.3",
+    "pestphp/pest": "^3.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tennis\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Javier Canclini",
+      "email": "jacancli@gmail.com"
+    }
+  ],
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
