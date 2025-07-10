@@ -66,7 +66,7 @@ class TennisGame
     public function createMatch(
         Player $player1,
         Player $player2,
-        int $maxSets = 5
+        int $setsToPlay
     ): void {
         assert($this->loggedUser !== null, 'You must be logged in to create a match.');
 
@@ -74,7 +74,7 @@ class TennisGame
             count($this->matches) + 1,
             $player1,
             $player2,
-            $maxSets
+            $setsToPlay
         );
 
         $this->scoreboard->setMatch($this->match);
