@@ -13,7 +13,7 @@ class Game
 
     protected array $points;
 
-    protected int $lackcount = 0;
+    protected bool $lackService = false;
 
     protected function __construct(
         protected readonly int $id,
@@ -27,10 +27,10 @@ class Game
 
     public function lackService(): void
     {
-        $this->lackcount++;
-
-        if ($this->lackcount === 2) {
+        if ($this->isLackService()) {
             $this->addPointTo($this->turn->getRest());
+        }else{
+            $this->lackService = true;
         }
     }
 
@@ -51,7 +51,7 @@ class Game
         }
 
         $this->points[$player->getId()]++;
-        $this->lackcount = 0;
+        $this->lackService = false;
 
         if ($this->playerWon($player)) {
             $this->winner = $player;
@@ -97,9 +97,9 @@ class Game
         return $this->winner !== null;
     }
 
-    public function hasLackService(): bool
+    public function isLackService(): bool
     {
-        return $this->lackcount !== 0;
+        return $this->lackService === true;
     }
 
     public function getScore(Player $service, Player $rest): array
