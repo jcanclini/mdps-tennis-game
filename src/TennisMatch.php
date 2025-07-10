@@ -106,7 +106,7 @@ class TennisMatch
 
     public function hasLackService(): bool
     {
-        return $this->currentSet()->getCurrentGame()->hasLackService();
+        return $this->currentSet()->getCurrentGame()->isLackService();
     }
 
     public function lackService(): void
