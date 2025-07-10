@@ -88,11 +88,14 @@ class Game
 
     public function isGameBall(): bool
     {
-        $servicePoints = $this->getPoints($this->turn->getService());
-        $restPoints = $this->getPoints($this->turn->getRest());
+        return $this->isGameBallSituation($this->turn->getService(), $this->turn->getRest()) ||
+            $this->isGameBallSituation($this->turn->getRest(), $this->turn->getService());
+    }
 
-        return ($servicePoints >= 3 && $restPoints < 3) ||
-            ($restPoints >= 3 && $servicePoints < 3);
+    private function isGameBallSituation(Player $player, Player $opponent): bool
+    {
+        return $this->getPoints($player) >= self::MIN_POINTS_TO_WIN - 1 &&
+            $this->getPoints($opponent) < self::MIN_POINTS_TO_WIN - 1;
     }
 
     public function isLackService(): bool
