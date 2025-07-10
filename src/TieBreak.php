@@ -18,11 +18,6 @@ class TieBreak extends Game
         );
     }
 
-    public function getScore(): array
-    {
-        return $this->points;
-    }
-
     public function addPointToService(): void
     {
         parent::addPointToService();

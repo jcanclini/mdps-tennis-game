@@ -99,9 +99,9 @@ class TennisMatch
         return $this->setsToPlay - count($this->sets);
     }
 
-    public function getGameScore(): array
+    public function getPlayerPoints(Player $player): int
     {
-        return $this->currentSet()->getCurrentGame()->getScore($this->player1, $this->player2);
+        return $this->currentSet()->getCurrentGame()->getPoints($player);
     }
 
     public function hasLackService(): bool

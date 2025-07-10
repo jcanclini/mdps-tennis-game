@@ -103,39 +103,7 @@ class Game
         return $this->lackService === true;
     }
 
-    public function getScore(Player $service, Player $rest): array
-    {
-        if (
-            $this->getPoints($service) >= 3 &&
-            $this->getPoints($rest) >= 3
-        ) {
-            $diff = $this->getPoints($service) - $this->getPoints($rest);
-
-            return match ($diff) {
-                0 => ['40', '40'],
-                1 => ['Ad', '40'],
-                -1 => ['40', 'Ad']
-            };
-        }
-
-        return [
-            $this->getScoreForPlayer($service),
-            $this->getScoreForPlayer($rest)
-        ];
-    }
-
-    public function getScoreForPlayer(Player $player): string
-    {
-        return match ($this->getPoints($player)) {
-            0 => '0',
-            1 => '15',
-            2 => '30',
-            3 => '40',
-            default => '40',
-        };
-    }
-
-    private function getPoints(Player $player): int
+    public function getPoints(Player $player): int
     {
         return $this->points[$player->getId()];
     }

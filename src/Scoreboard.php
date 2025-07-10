@@ -30,7 +30,7 @@ class Scoreboard
             $scorePlayer2 = $this->match->hasLackService() ? "+ " : "* ";
         }
 
-        [$score1, $score2] = $this->match->getGameScore();
+        [$score1, $score2] = $this->getScore($player1, $player2);
 
         $biggerName = max(strlen($player1->getName()), strlen($player2->getName()));
 
@@ -68,6 +68,44 @@ class Scoreboard
             $this->printBoxedMessage("Tie Break!!!");
             $this->println();
         }
+    }
+
+    public function getScore(Player $player1, Player $player2): array
+    {
+        if (!$this->match->isTieBreak()) {
+            return [
+                $this->getScoreForPlayer($player1),
+                $this->getScoreForPlayer($player2)
+            ];
+        }
+
+        if (
+            $this->match->getPlayerPoints($player1) >= Game::MIN_POINTS_TO_WIN - 1 &&
+            $this->match->getPlayerPoints($player2) >= Game::MIN_POINTS_TO_WIN - 1
+        ) {
+            $diff = $this->match->getPlayerPoints($player1) - $this->match->getPlayerPoints($player2);
+
+            return match ($diff) {
+                0 => ['40', '40'],
+                1 => ['Ad', '40'],
+                -1 => ['40', 'Ad']
+            };
+        }
+
+        return [
+            $this->getScoreForPlayer($player1),
+            $this->getScoreForPlayer($player2)
+        ];
+    }
+
+    public function getScoreForPlayer(Player $player): string
+    {
+        return match ($this->match->getPlayerPoints($player)) {
+            0 => '0',
+            1 => '15',
+            2 => '30',
+            3 => '40',
+        };
     }
 
     protected function print(string $message): void
