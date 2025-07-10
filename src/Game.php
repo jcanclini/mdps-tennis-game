@@ -46,9 +46,7 @@ class Game
 
     protected function addPointTo(Player $player): void
     {
-        if ($this->isFinished()) {
-            return;
-        }
+        assert(!$this->isFinished(), 'Game is already finished.');
 
         $this->points[$player->getId()]++;
         $this->lackService = false;
