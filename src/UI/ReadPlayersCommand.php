@@ -6,6 +6,8 @@ namespace Tennis\UI;
 
 class ReadPlayersCommand extends Command
 {
+    protected $requireLogin = true;
+
     public function execute(?string $args = null): void
     {
         if (!$this->game->isLoggedIn()) {

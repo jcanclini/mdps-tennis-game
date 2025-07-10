@@ -6,6 +6,7 @@ namespace Tennis\UI;
 
 use Tennis\Scoreboard;
 use Tennis\TennisGame;
+use Tennis\TennisMatch;
 
 class ConsoleGame
 {
@@ -33,18 +34,6 @@ class ConsoleGame
         $this->println("Welcome to the Tennis Game Console!");
         $this->println();
 
-        $this->println("Available commands:");
-        $this->println(">createReferee name:molina;password:1234");
-        $this->println(">login name:molina;password:1234");
-        $this->println(">createPlayer name:Nadal");
-        $this->println(">createPlayer name:Alcaraz");
-        $this->println(">createPlayer name:Zapata");
-        $this->println(">readPlayers");
-        $this->println(">createMatch sets:3;ids:1,2");
-        $this->println(">lackService");
-        $this->println(">pointService");
-        $this->println(">pointRest");
-        $this->println("-------------------------------------------");
         $this->game->createReferee('molina', '1234');
         $this->game->login('molina', '1234');
         $this->game->createPlayer('Nadal');
@@ -54,7 +43,7 @@ class ConsoleGame
         $this->game->createMatch(
             $this->game->getPlayer(1),
             $this->game->getPlayer(2),
-            3
+            TennisMatch::THREE_SETS
         );
 
         $this->println(">createMatch sets:3;ids:1,2");
@@ -67,57 +56,53 @@ class ConsoleGame
         do {
             [$command, $args] = $this->readCommand();
 
-            if ($command === ConsoleCommand::LOGOUT) {
-                $this->game->logout();
-                return;
-            }
+            assert(array_key_exists($command->value, self::COMMANDS), "Command: {$command->value} not found in commands list");
 
-            if (
-                !in_array($command, [ConsoleCommand::LOGIN, ConsoleCommand::CREATE_REFEREE]) &&
-                !$this->game->isLoggedIn()
-            ) {
-                $this->println("You must be logged in to execute this command.");
-                continue;
-            }
+            $commandInstance = new (self::COMMANDS[$command->value])($this->game);
 
-            match ($command) {
-                ConsoleCommand::CREATE_REFEREE => new CreateRefereeCommand($this->game)->execute($args),
-                ConsoleCommand::LOGIN => new LoginCommand($this->game)->execute($args),
-                ConsoleCommand::CREATE_PLAYER => new CreatePlayerCommand($this->game)->execute($args),
-                ConsoleCommand::READ_PLAYERS => new ReadPlayersCommand($this->game)->execute(),
-                ConsoleCommand::CREATE_MATCH => new CreateMatchCommand($this->game)->execute($args),
-                ConsoleCommand::LACK_SERVICE => new LackServiceCommand($this->game)->execute(),
-                ConsoleCommand::POINT_SERVICE => new PointServiceCommand($this->game)->execute(),
-                ConsoleCommand::POINT_REST => new PointRestCommand($this->game)->execute(),
-                default => ""
-            };
+            assert($commandInstance instanceof Command, "Command class must extend Command");
+
+            $commandInstance($args);
         } while ($command !== ConsoleCommand::LOGOUT);
     }
 
+    /**
+     * Reads a command from the console input.
+     *
+     * @return array<int,<Command, string>>
+     */
     private function readCommand(): array
     {
         $prompt = ">";
         if ($this->game->getMatch()) {
             $prompt = "match id:{$this->game->getMatchId()}>";
         }
+
         while (true) {
 
-            $this->print($prompt);
-            $input = trim(fgets(STDIN));
+            [$inputCommand, $args] = $this->readInput($prompt);
 
-            [$inputCommand, $args] = explode(" ", $input) + [null, null];
-
-            $command = ConsoleCommand::tryFrom(trim($inputCommand));
-
-            if ($command !== null) {
-                return [$command, $args];
+            if (!ConsoleCommand::hasCommand($inputCommand)) {
+                $this->println("Unknown command: $inputCommand");
+                continue;
             }
+
+            return [ConsoleCommand::from($inputCommand), $args];
         }
     }
 
-    private function print(string $message): void
+    private function readInput(string $prompt): array
     {
-        echo $message;
+        $input = trim(readline($prompt));
+        if (empty($input)) {
+            return ["", ""];
+        }
+
+        $parts = explode(' ', $input, 2);
+        $command = $parts[0];
+        $args = isset($parts[1]) ? $parts[1] : "";
+
+        return [$command, $args];
     }
 
     private function println(string $message = ""): void

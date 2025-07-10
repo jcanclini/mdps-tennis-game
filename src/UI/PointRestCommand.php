@@ -6,6 +6,8 @@ namespace Tennis\UI;
 
 class PointRestCommand extends Command
 {
+    protected $requireLogin = true;
+
     public function execute(?string $args = null): void
     {
         $this->game->getMatch()->addPointToRest();

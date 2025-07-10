@@ -18,4 +18,16 @@ enum ConsoleCommand: string
 
     case LOGIN = 'login';
     case LOGOUT = 'logout';
+
+    case HELP = 'help';
+
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
+
+    public static function hasCommand(string $command): bool
+    {
+        return in_array($command, self::values(), true);
+    }
 }
