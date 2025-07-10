@@ -9,8 +9,6 @@ class Game
     const MIN_POINTS_TO_WIN = 4;
     const MIN_POINT_DIFFERENCE = 2;
 
-    protected ?Player $winner = null;
-
     protected array $points;
 
     protected bool $lackService = false;
@@ -29,7 +27,7 @@ class Game
     {
         if ($this->isLackService()) {
             $this->addPointTo($this->turn->getRest());
-        }else{
+        } else {
             $this->lackService = true;
         }
     }
@@ -50,13 +48,27 @@ class Game
 
         $this->points[$player->getId()]++;
         $this->lackService = false;
-
-        if ($this->playerWon($player)) {
-            $this->winner = $player;
-        }
     }
 
-    protected function playerWon(Player $player): bool
+    public function isFinished(): bool
+    {
+        return $this->getWinner() !== null;
+    }
+
+    public function getWinner(): ?Player
+    {
+        if ($this->isWinner($this->turn->getService())) {
+            return $this->turn->getService();
+        }
+
+        if ($this->isWinner($this->turn->getRest())) {
+            return $this->turn->getRest();
+        }
+
+        return null;
+    }
+
+    protected function isWinner(Player $player): bool
     {
         $opponent = $this->turn->getOpponent($player);
 
@@ -81,18 +93,6 @@ class Game
 
         return ($servicePoints >= 3 && $restPoints < 3) ||
             ($restPoints >= 3 && $servicePoints < 3);
-    }
-
-    public function getWinner(): Player
-    {
-        assert($this->winner !== null, 'Game is not finished yet.');
-
-        return $this->winner;
-    }
-
-    public function isFinished(): bool
-    {
-        return $this->winner !== null;
     }
 
     public function isLackService(): bool
