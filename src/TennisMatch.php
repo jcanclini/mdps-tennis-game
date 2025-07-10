@@ -22,9 +22,9 @@ class TennisMatch
         private readonly int $id,
         private Player $player1,
         private Player $player2,
-        private readonly int $setToPlay
+        private readonly int $setsToPlay
     ) {
-        assert($setToPlay === 3 || $setToPlay === 5, 'Max sets must be either 3 or 5.');
+        assert($setsToPlay === 3 || $setsToPlay === 5, 'Max sets must be either 3 or 5.');
 
         $this->date = new \DateTimeImmutable();
 
@@ -96,7 +96,7 @@ class TennisMatch
 
     public function getPendingSets(): int
     {
-        return $this->setToPlay - count($this->sets);
+        return $this->setsToPlay - count($this->sets);
     }
 
     public function getGameScore(): array
@@ -154,7 +154,7 @@ class TennisMatch
 
     public function getMinSetsToWin(): int
     {
-        return $this->setToPlay === 3 ? 2 : 3;
+        return $this->setsToPlay === 3 ? 2 : 3;
     }
 
     private function createSet(): Set
