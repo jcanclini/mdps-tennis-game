@@ -11,6 +11,18 @@ class ConsoleGame
 {
     private TennisGame $game;
 
+    private const COMMANDS = [
+        ConsoleCommand::CREATE_REFEREE->value => CreateRefereeCommand::class,
+        ConsoleCommand::LOGIN->value => LoginCommand::class,
+        ConsoleCommand::CREATE_PLAYER->value => CreatePlayerCommand::class,
+        ConsoleCommand::READ_PLAYERS->value => ReadPlayersCommand::class,
+        ConsoleCommand::CREATE_MATCH->value => CreateMatchCommand::class,
+        ConsoleCommand::LACK_SERVICE->value => LackServiceCommand::class,
+        ConsoleCommand::POINT_SERVICE->value => PointServiceCommand::class,
+        ConsoleCommand::POINT_REST->value => PointRestCommand::class,
+        ConsoleCommand::LOGOUT->value => LogoutCommand::class,
+    ];
+
     public function __construct()
     {
         $this->game = new TennisGame(new Scoreboard());
