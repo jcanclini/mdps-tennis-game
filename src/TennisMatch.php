@@ -12,13 +12,9 @@ class TennisMatch
 
     const MIN_SETS_TO_WIN = [3 => 2, 5 => 3];
 
-    private ?Player $winner = null;
-
     private array $sets = [];
 
     private Turn $turn;
-
-    private array $points;
 
     private \DateTimeImmutable $date;
 
@@ -30,13 +26,8 @@ class TennisMatch
     ) {
         assert(in_array($setsToPlay, self::ALLOWED_SETS), 'Max sets must be either 3 or 5.');
         $this->turn = Turn::create($player1, $player2);
-
-        $this->points = [
-            $player1->getId() => 0,
-            $player2->getId() => 0,
-        ];
-
         $this->sets[] = $this->createSet();
+        $this->date = new \DateTimeImmutable();
     }
 
     public function getId(): int
@@ -51,40 +42,27 @@ class TennisMatch
 
     public function addPointToService(): void
     {
-        assert(!$this->winner, 'Match is already finished.');
+        assert($this->getWinner() === null, 'Match is already finished.');
         $this->currentSet()->addPointToService();
-        $this->checkStatus();
+        if ($this->currentSet()->isFinished()) {
+            $this->sets[] = $this->createSet();
+        }
     }
 
     public function addPointToRest(): void
     {
-        assert(!$this->winner, 'Match is already finished.');
+        assert($this->getWinner() === null, 'Match is already finished.');
         $this->currentSet()->addPointToRest();
-        $this->checkStatus();
+        if ($this->currentSet()->isFinished()) {
+            $this->sets[] = $this->createSet();;
+        }
     }
 
     private function checkStatus(): void
     {
-        if (!$this->currentSet()->isFinished()) {
-            return;
+        if ($this->currentSet()->isFinished()) {
+            $this->sets[] = $this->createSet();
         }
-
-        $this->currentSet()->getWinner() === $this->player1
-            ? $this->points[$this->player1->getId()]++
-            : $this->points[$this->player2->getId()]++;
-
-        if ($this->points[$this->player1->getId()] >= $this->getMinSetsToWin()) {
-            $this->winner = $this->player1;
-            return;
-        }
-        if ($this->points[$this->player2->getId()] >= $this->getMinSetsToWin()) {
-            $this->winner = $this->player2;
-            return;
-        }
-
-        $this->turn->switch();
-
-        $this->sets[] = $this->createSet();;
     }
 
     /**
@@ -135,14 +113,34 @@ class TennisMatch
         return $this->currentSet()->isTieBreak();
     }
 
-    public function getWinner(): ?Player
-    {
-        return $this->winner;
-    }
-
     public function isFinished(): bool
     {
-        return $this->winner !== null;
+        return $this->getWinner() !== null;
+    }
+
+    public function getWinner(): ?Player
+    {
+        if ($this->isWinner($this->player1)) {
+            return $this->player1;
+        }
+
+        if ($this->isWinner($this->player2)) {
+            return $this->player2;
+        }
+
+        return null;
+    }
+
+    private function isWinner(Player $player): bool
+    {
+        $setsWon = 0;
+        foreach ($this->sets as $set) {
+            if ($set->isFinished() && $set->getWinner() === $player) {
+                $setsWon++;
+            }
+        }
+
+        return $setsWon >= $this->getMinSetsToWin();
     }
 
     /**
@@ -160,6 +158,8 @@ class TennisMatch
 
     private function createSet(): Set
     {
+        $this->turn->switch();
+
         return Set::create(
             count($this->sets) + 1,
             $this->player1,
