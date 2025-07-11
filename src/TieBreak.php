@@ -10,11 +10,14 @@ class TieBreak extends Game
 
     public function __construct(
         int $id,
-        Turn $turn
+        protected Player $service,
+        protected Player $rest,
+        protected Turn $turn
     ) {
         parent::__construct(
             $id,
-            Turn::create($turn->getService(), $turn->getRest())
+            $service,
+            $rest
         );
     }
 
@@ -34,6 +37,18 @@ class TieBreak extends Game
     {
         if (array_sum($this->points) === 1 || array_sum($this->points) % 2 === 1) {
             $this->turn->switch();
+            $this->service = $this->turn->getService();
+            $this->rest = $this->turn->getRest();
         }
+    }
+
+    public static function create(int $id, Turn $turn): static
+    {
+        return new static(
+            $id,
+            $turn->getService(),
+            $turn->getRest(),
+            Turn::create($turn->getService(), $turn->getRest())
+        );
     }
 }

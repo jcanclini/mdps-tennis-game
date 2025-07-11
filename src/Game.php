@@ -15,18 +15,19 @@ class Game
 
     protected function __construct(
         protected readonly int $id,
-        protected Turn $turn
+        protected Player $service,
+        protected Player $rest
     ) {
         $this->points = [
-            $turn->getService()->getId() => 0,
-            $turn->getRest()->getId() => 0,
+            $service->getId() => 0,
+            $rest->getId() => 0,
         ];
     }
 
     public function lackService(): void
     {
         if ($this->isLackService()) {
-            $this->addPointTo($this->turn->getRest());
+            $this->addPointTo($this->rest);
         } else {
             $this->lackService = true;
         }
@@ -34,12 +35,12 @@ class Game
 
     public function addPointToService(): void
     {
-        $this->addPointTo($this->turn->getService());
+        $this->addPointTo($this->service);
     }
 
     public function addPointToRest(): void
     {
-        $this->addPointTo($this->turn->getRest());
+        $this->addPointTo($this->rest);
     }
 
     protected function addPointTo(Player $player): void
@@ -57,12 +58,12 @@ class Game
 
     public function getWinner(): ?Player
     {
-        if ($this->isWinner($this->turn->getService())) {
-            return $this->turn->getService();
+        if ($this->isWinner($this->service)) {
+            return $this->service;
         }
 
-        if ($this->isWinner($this->turn->getRest())) {
-            return $this->turn->getRest();
+        if ($this->isWinner($this->rest)) {
+            return $this->rest;
         }
 
         return null;
@@ -70,7 +71,7 @@ class Game
 
     protected function isWinner(Player $player): bool
     {
-        $opponent = $this->turn->getOpponent($player);
+        $opponent = $player === $this->service ? $this->rest : $this->service;
 
         return $this->getPoints($player) >= static::MIN_POINTS_TO_WIN &&
             ($this->getPoints($player) - $this->getPoints($opponent)) >= static::MIN_POINT_DIFFERENCE;
@@ -78,18 +79,18 @@ class Game
 
     public function getService(): Player
     {
-        return $this->turn->getService();
+        return $this->service;
     }
 
     public function getRest(): Player
     {
-        return $this->turn->getRest();
+        return $this->rest;
     }
 
     public function isGameBall(): bool
     {
-        return $this->isGameBallSituation($this->turn->getService(), $this->turn->getRest()) ||
-            $this->isGameBallSituation($this->turn->getRest(), $this->turn->getService());
+        return $this->isGameBallSituation($this->service, $this->rest) ||
+            $this->isGameBallSituation($this->rest, $this->service);
     }
 
     private function isGameBallSituation(Player $player, Player $opponent): bool
@@ -110,6 +111,10 @@ class Game
 
     public static function create(int $id, Turn $turn): static
     {
-        return new static($id, Turn::create($turn->getService(), $turn->getRest()));
+        return new static(
+            $id,
+            $turn->getService(),
+            $turn->getRest()
+        );
     }
 }
