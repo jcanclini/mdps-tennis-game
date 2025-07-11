@@ -8,6 +8,10 @@ use DateTimeImmutable;
 
 class TennisMatch
 {
+    const ALLOWED_SETS = [3, 5];
+
+    const MIN_SETS_TO_WIN = [3 => 2, 5 => 3];
+
     private ?Player $winner = null;
 
     private array $sets = [];
@@ -24,10 +28,7 @@ class TennisMatch
         private Player $player2,
         private readonly int $setsToPlay
     ) {
-        assert($setsToPlay === 3 || $setsToPlay === 5, 'Max sets must be either 3 or 5.');
-
-        $this->date = new \DateTimeImmutable();
-
+        assert(in_array($setsToPlay, self::ALLOWED_SETS), 'Max sets must be either 3 or 5.');
         $this->turn = Turn::create($player1, $player2);
 
         $this->points = [
@@ -154,7 +155,7 @@ class TennisMatch
 
     public function getMinSetsToWin(): int
     {
-        return $this->setsToPlay === 3 ? 2 : 3;
+        return self::MIN_SETS_TO_WIN[$this->setsToPlay];
     }
 
     private function createSet(): Set
