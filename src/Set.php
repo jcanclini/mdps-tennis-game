@@ -165,8 +165,6 @@ class Set
 
     private function createGame(): void
     {
-        // echo "Creating new game for set {$this->id}\n";
-        // echo "Current turn: {$this->turn->getService()->getName()} vs {$this->turn->getRest()->getName()}\n";
         $this->turn->switch();
 
         if ($this->asdfadfsfaf()) {
