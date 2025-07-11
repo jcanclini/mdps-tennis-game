@@ -39,7 +39,60 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+
+function createPlayer(int $id = 1, string $name = 'Nadal'): \Tennis\Player
 {
-    // ..
+    return new \Tennis\Player(id: $id, name: $name);
+}
+
+function createTennisGame(): \Tennis\Game
+{
+    return \Tennis\Game::create(
+        1,
+        \Tennis\Turn::create(
+            new \Tennis\Player(id: 1, name: 'Nadal'),
+            new \Tennis\Player(id: 2, name: 'Federer')
+        )
+    );
+}
+
+function createSet(?\Tennis\Player $player1 = null, ?\Tennis\Player $player2 = null): \Tennis\Set
+{
+    return \Tennis\Set::create(
+        1,
+        service: $player1 ?? createPlayer(1, 'Nadal'),
+        rest: $player2 ?? createPlayer(2, 'Federer')
+    );
+}
+
+function createMatch(
+    int $id = 1,
+    ?\Tennis\Player $player1 = null,
+    ?\Tennis\Player $player2 = null,
+    int $setsToPlay = 3
+): \Tennis\TennisMatch {
+    return \Tennis\TennisMatch::create(
+        id: $id,
+        player1: $player1 ?? createPlayer(1, 'Nadal'),
+        player2: $player2 ?? createPlayer(2, 'Federer'),
+        setsToPlay: $setsToPlay
+    );
+}
+
+function simulateSetWin(\Tennis\Set $set, \Tennis\Player $player): void
+{
+    for ($i = 0; $i < \Tennis\Set::MIN_GAMES_TO_WIN; $i++) {
+        simulateGameWin($set, $player);
+    }
+}
+
+function simulateGameWin(\Tennis\Set $set, \Tennis\Player $player): void
+{
+    for ($i = 0; $i < \Tennis\Game::MIN_POINTS_TO_WIN; $i++) {
+        if ($set->getCurrentGame()->getService() === $player) {
+            $set->addPointToService();
+        } else {
+            $set->addPointToRest();
+        }
+    }
 }
