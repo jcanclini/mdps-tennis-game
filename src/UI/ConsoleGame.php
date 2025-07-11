@@ -43,7 +43,7 @@ class ConsoleGame
         $this->game->createMatch(
             $this->game->getPlayer(1),
             $this->game->getPlayer(2),
-            TennisMatch::THREE_SETS
+            3
         );
 
         $this->println(">createMatch sets:3;ids:1,2");

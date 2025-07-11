@@ -7,22 +7,16 @@ namespace Tennis;
 class Set
 {
     const MIN_GAMES_TO_WIN = 6;
+    const MIN_GAMES_FOR_TIEBREAK = 12;
     const MIN_POINT_DIFFERENCE = 2;
 
     private const PLAYER_1 = 0;
     private const PLAYER_2 = 1;
 
-    private $points = [
-        self::PLAYER_1 => 0,
-        self::PLAYER_2 => 0,
-    ];
-
     /**
      * @var Game[]
      */
     private array $games = [];
-
-    public ?Player $winner = null;
 
     private Turn $turn;
 
@@ -46,59 +40,60 @@ class Set
         return $this->id;
     }
 
+    public function getTurn(): Turn
+    {
+        return $this->turn;
+    }
+
     public function addPointToService(): void
     {
+        assert($this->isFinished() === false, 'Cannot add point to service when the set is finished.');
+
         $this->currentGame()->addPointToService();
-        if ($this->currentGame()->isFinished()) {
-            echo "Game finished. Checking status..." . PHP_EOL;
-            $this->checkStatus();
+        if (!$this->isTieBreak() && $this->currentGame()->isFinished()) {
+            $this->createGame();
         }
     }
 
     public function addPointToRest(): void
     {
+        assert($this->isFinished() === false, 'Cannot add point to rest when the set is finished.');
+
         $this->currentGame()->addPointToRest();
-        if ($this->currentGame()->isFinished()) {
-            $this->checkStatus();
+        if (!$this->isTieBreak() && $this->currentGame()->isFinished()) {
+            $this->createGame();
         }
     }
 
-    private function checkStatus(): void
+    public function isFinished(): bool
     {
-        $this->currentGame()->getWinner() === $this->player1
-            ? $this->points[self::PLAYER_1]++
-            : $this->points[self::PLAYER_2]++;
-
-        if ($this->winner = $this->getSetWinner()) {
-            return;
-        }
-
-        $this->turn->switch();
-
-        $this->createGame();
+        return $this->getWinner() !== null;
     }
 
-    private function getSetWinner(): ?Player
+    public function getWinner(): ?Player
     {
         if ($this->currentGame() instanceof TieBreak) {
             return $this->currentGame()->getWinner();
         }
 
-        if (
-            $this->points[self::PLAYER_1] >= self::MIN_GAMES_TO_WIN &&
-            $this->points[self::PLAYER_1] - $this->points[self::PLAYER_2] >= self::MIN_POINT_DIFFERENCE
-        ) {
+        $gamesWon = $this->getGamesWon();
+
+        if ($this->isWinner($gamesWon[self::PLAYER_1], $gamesWon[self::PLAYER_2])) {
             return $this->player1;
         }
 
-        if (
-            $this->points[self::PLAYER_2] >= self::MIN_GAMES_TO_WIN &&
-            $this->points[self::PLAYER_2] - $this->points[self::PLAYER_1] >= self::MIN_POINT_DIFFERENCE
-        ) {
+        if ($this->isWinner($gamesWon[self::PLAYER_2], $gamesWon[self::PLAYER_1])) {
             return $this->player2;
         }
 
         return null;
+    }
+
+    private function isWinner(int $player1, int $player2): bool
+    {
+        return (
+            $player1 >= self::MIN_GAMES_TO_WIN && $player1 - $player2 >= self::MIN_POINT_DIFFERENCE
+        );
     }
 
     /**
@@ -116,27 +111,51 @@ class Set
 
     public function getPoints(): array
     {
-        return $this->points;
+        return $this->getGamesWon();
     }
 
     public function isSetBall(): bool
     {
-        $servicePoints = $this->points[self::PLAYER_1];
-        $restPoints = $this->points[self::PLAYER_2];
-
-        return ($servicePoints >= 5 && $restPoints < 5) ||
-            ($restPoints >= 5 && $servicePoints < 5) &&
+        return ($this->hasSetBallOpportunity(self::PLAYER_1, self::PLAYER_2) ||
+            $this->hasSetBallOpportunity(self::PLAYER_2, self::PLAYER_1)) &&
             $this->currentGame()->isGameBall();
     }
 
-    public function getWinner(): ?Player
+    private function hasSetBallOpportunity(int $playerIndex, int $opponentIndex): bool
     {
-        return $this->winner;
+        $gamesWon = $this->getGamesWon();
+        return $gamesWon[$playerIndex] >= self::MIN_GAMES_TO_WIN - 1
+            && $gamesWon[$opponentIndex] < self::MIN_GAMES_TO_WIN - 1;
     }
 
-    public function isFinished(): bool
+    public function isTieBreak(): bool
     {
-        return $this->winner !== null;
+        return $this->currentGame() instanceof TieBreak;
+    }
+
+    private function hasMinGamesToWin($player): bool
+    {
+        $gamesWon = $this->getGamesWon();
+        return $gamesWon[$player] === self::MIN_GAMES_TO_WIN;
+    }
+
+    private function getGamesWon(): array
+    {
+        $gamesWon = [self::PLAYER_1 => 0, self::PLAYER_2 => 0];
+
+        foreach ($this->games as $game) {
+            if (!$game->isFinished()) {
+                continue;
+            }
+
+            if ($game->getWinner() === $this->player1) {
+                $gamesWon[self::PLAYER_1]++;
+            } else {
+                $gamesWon[self::PLAYER_2]++;
+            }
+        }
+
+        return $gamesWon;
     }
 
     private function currentGame(): Game
@@ -146,19 +165,24 @@ class Set
 
     private function createGame(): void
     {
-        if ($this->isTieBreak()) {
+        // echo "Creating new game for set {$this->id}\n";
+        // echo "Current turn: {$this->turn->getService()->getName()} vs {$this->turn->getRest()->getName()}\n";
+        $this->turn->switch();
+
+        if ($this->asdfadfsfaf()) {
             $this->games[] = TieBreak::create(count($this->games) + 1, $this->turn);
             return;
         }
 
+
         $this->games[] = Game::create(count($this->games) + 1, $this->turn);
     }
 
-    public function isTieBreak(): bool
+    private function asdfadfsfaf(): bool
     {
-        return count($this->games) >= 12 &&
-            $this->points[self::PLAYER_1] === self::MIN_GAMES_TO_WIN &&
-            $this->points[self::PLAYER_2] === self::MIN_GAMES_TO_WIN;
+        return count($this->games) >= self::MIN_GAMES_FOR_TIEBREAK &&
+            $this->hasMinGamesToWin(self::PLAYER_1) &&
+            $this->hasMinGamesToWin(self::PLAYER_2);
     }
 
     public static function create(int $id, Player $service, Player $rest): self

@@ -175,8 +175,8 @@ class TennisMatch
         int $id,
         Player $player1,
         Player $player2,
-        int $setToPlay
+        int $setsToPlay
     ): self {
-        return new self($id, $player1, $player2, $setToPlay);
+        return new self($id, $player1, $player2, $setsToPlay);
     }
 }
