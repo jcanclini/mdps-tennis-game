@@ -45,13 +45,15 @@ function createPlayer(int $id = 1, string $name = 'Nadal'): \Tennis\Player
     return new \Tennis\Player(id: $id, name: $name);
 }
 
-function createTennisGame(): \Tennis\Game
+function createTennisGame(?\Tennis\Player $player1 = null, ?\Tennis\Player $player2 = null): \Tennis\Game
 {
+    $player1 = $player1 ?? createPlayer(1, 'Nadal');
+    $player2 = $player2 ?? createPlayer(2, 'Federer');
     return \Tennis\Game::create(
         1,
         \Tennis\Turn::create(
-            new \Tennis\Player(id: 1, name: 'Nadal'),
-            new \Tennis\Player(id: 2, name: 'Federer')
+            $player1,
+            $player2
         )
     );
 }
