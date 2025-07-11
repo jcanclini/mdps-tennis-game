@@ -1,0 +1,77 @@
+<?php
+
+use Tennis\Player;
+use Tennis\TieBreak;
+use Tennis\Turn;
+
+function createTieBreak(Player $service, Player $rest): TieBreak
+{
+    return TieBreak::create(
+        1,
+        Turn::create(
+            $service,
+            $rest,
+            $service
+        )
+    );
+}
+
+it('has a valid initial state on creation', function () {
+    $service = new Player(id: 1, name: 'Nadal');
+    $rest = new Player(id: 2, name: 'Federer');
+    $tieBreak = createTieBreak($service, $rest);
+
+    expect($tieBreak->getService()->getName())->toBe('Nadal');
+    expect($tieBreak->getRest()->getName())->toBe('Federer');
+});
+
+it('serves the first point', function () {
+    $service = new Player(id: 1, name: 'Nadal');
+    $rest = new Player(id: 2, name: 'Federer');
+    $tieBreak = createTieBreak($service, $rest);
+
+    $tieBreak->addPointToService();
+    expect($tieBreak->getPoints($service))->toBe(1);
+    expect($tieBreak->getPoints($rest))->toBe(0);
+
+});
+
+it('service wins the game', function () {
+    $service = new Player(id: 1, name: 'Nadal');
+    $rest = new Player(id: 2, name: 'Federer');
+    $tieBreak = createTieBreak($service, $rest);
+
+    $tieBreak->addPointToService();
+    expect($tieBreak->getPoints($service))->toBe(1);
+    $tieBreak->addPointToRest();
+    expect($tieBreak->getPoints($service))->toBe(2);
+    $tieBreak->addPointToRest();
+    expect($tieBreak->getPoints($service))->toBe(3);
+    $tieBreak->addPointToService();
+    expect($tieBreak->getPoints($service))->toBe(4);
+    $tieBreak->addPointToService();
+    expect($tieBreak->getPoints($service))->toBe(5);
+    $tieBreak->addPointToRest();
+    expect($tieBreak->getPoints($service))->toBe(6);
+
+    expect($tieBreak->getWinner()->getName())->toBe('Nadal');
+});
+
+it('switches service after odd points', function () {
+    $service = new Player(id: 1, name: 'Nadal');
+    $rest = new Player(id: 2, name: 'Federer');
+    $tieBreak = createTieBreak($service, $rest);
+
+    expect($tieBreak->getService()->getName())->toBe('Nadal');
+
+    $tieBreak->addPointToService();
+    expect($tieBreak->getService()->getName())->toBe('Federer');
+
+    $tieBreak->addPointToRest();
+    $tieBreak->addPointToService();
+    expect($tieBreak->getService()->getName())->toBe('Nadal');
+
+    $tieBreak->addPointToService();
+    $tieBreak->addPointToRest();
+    expect($tieBreak->getService()->getName())->toBe('Federer');
+});
