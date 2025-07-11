@@ -167,16 +167,15 @@ class Set
     {
         $this->turn->switch();
 
-        if ($this->asdfadfsfaf()) {
+        if ($this->shouldPlayTieBreak()) {
             $this->games[] = TieBreak::create(count($this->games) + 1, $this->turn);
             return;
         }
 
-
         $this->games[] = Game::create(count($this->games) + 1, $this->turn);
     }
 
-    private function asdfadfsfaf(): bool
+    private function shouldPlayTieBreak(): bool
     {
         return count($this->games) >= self::MIN_GAMES_FOR_TIEBREAK &&
             $this->hasMinGamesToWin(self::PLAYER_1) &&
