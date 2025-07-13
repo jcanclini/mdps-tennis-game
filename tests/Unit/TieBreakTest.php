@@ -75,3 +75,18 @@ it('switches service after odd points', function () {
     $tieBreak->addPointToRest();
     expect($tieBreak->getService()->getName())->toBe('Federer');
 });
+
+it('is game ball when service has 6 points and rest has 4 or less', function () {
+    $service = new Player(id: 1, name: 'Nadal');
+    $rest = new Player(id: 2, name: 'Federer');
+    $tieBreak = createTieBreak($service, $rest);
+
+    for ($i = 0; $i < 5; $i++) {
+        $tieBreak->addPointToService();
+    }
+    for ($i = 0; $i < 4; $i++) {
+        $tieBreak->addPointToRest();
+    }
+
+    expect($tieBreak->isGameBall())->toBeTrue();
+});

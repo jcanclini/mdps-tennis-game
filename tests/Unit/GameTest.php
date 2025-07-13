@@ -144,6 +144,7 @@ describe('game ball', function () {
         for ($i = 0; $i < 3; $i++) {
             $game->addPointToService();
         }
+
         expect($game->isGameBall())->toBeTrue();
     });
 
@@ -161,6 +162,17 @@ describe('game ball', function () {
             $game->addPointToService();
         }
         $game->addPointToRest(); // Rest has advantage
+        expect($game->isGameBall())->toBeTrue();
+    });
+
+    it('is game ball when service has 8 points and rest has 6', function () {
+        $game = createTennisGame();
+        for ($i = 0; $i < 6; $i++) {
+            $game->addPointToService();
+            $game->addPointToRest();
+        }
+        $game->addPointToService();
+
         expect($game->isGameBall())->toBeTrue();
     });
 
