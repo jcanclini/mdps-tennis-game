@@ -96,7 +96,7 @@ class Game
     private function isGameBallSituation(Player $player, Player $opponent): bool
     {
         return $this->getPoints($player) >= self::MIN_POINTS_TO_WIN - 1 &&
-            $this->getPoints($opponent) < self::MIN_POINTS_TO_WIN - 1;
+            $this->getPoints($player) - $this->getPoints($opponent) >= 1;
     }
 
     public function isLackService(): bool
