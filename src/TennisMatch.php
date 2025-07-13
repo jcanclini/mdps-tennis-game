@@ -58,13 +58,6 @@ class TennisMatch
         }
     }
 
-    private function checkStatus(): void
-    {
-        if ($this->currentSet()->isFinished()) {
-            $this->sets[] = $this->createSet();
-        }
-    }
-
     /**
      * @return Set[] 
      */
