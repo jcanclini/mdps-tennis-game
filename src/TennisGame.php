@@ -8,13 +8,11 @@ class TennisGame
 {
     /**
      * @var array<int, Player>
-     * @psalm-var array<int, Player>
      */
     private array $players = [];
 
     /**
      * @var array<int, Referee>
-     * @psalm-var array<int, Referee>
      */
     private array $referees = [];
 
@@ -22,7 +20,6 @@ class TennisGame
 
     /**
      * @var array<int, TennisMatch>
-     * @psalm-var array<int, TennisMatch>
      */
     private array $matches = [];
 
