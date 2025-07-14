@@ -36,7 +36,7 @@ class ConsoleGame
 
     public function start(): void
     {
-        $this->println("Welcome to the Tennis Game Console!");
+        $this->println("Welcome to the console tennis game!!");
         $this->println();
 
         $this->game->createReferee('molina', '1234');
