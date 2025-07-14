@@ -6,7 +6,6 @@ namespace Tennis\UI;
 
 use Tennis\Scoreboard;
 use Tennis\TennisGame;
-use Tennis\TennisMatch;
 
 class ConsoleGame
 {
@@ -22,11 +21,17 @@ class ConsoleGame
         ConsoleCommand::POINT_SERVICE->value => PointServiceCommand::class,
         ConsoleCommand::POINT_REST->value => PointRestCommand::class,
         ConsoleCommand::LOGOUT->value => LogoutCommand::class,
+        ConsoleCommand::HELP->value => HelpCommand::class,
     ];
 
     public function __construct()
     {
         $this->game = new TennisGame(new Scoreboard());
+    }
+
+    public function getGame(): TennisGame
+    {
+        return $this->game;
     }
 
     public function start(): void
@@ -51,14 +56,14 @@ class ConsoleGame
         $this->println("date: {$this->game->getMatchDate()}");
         $this->println("Referee: {$this->game->getRefereeName()}");
         $this->println();
-        $this->game->drawScoreboard();
+        $this->draw();
 
         do {
             [$command, $args] = $this->readCommand();
 
             assert(array_key_exists($command->value, self::COMMANDS), "Command: {$command->value} not found in commands list");
 
-            $commandInstance = new (self::COMMANDS[$command->value])($this->game);
+            $commandInstance = new (self::COMMANDS[$command->value])($this);
 
             assert($commandInstance instanceof Command, "Command class must extend Command");
 
@@ -91,7 +96,64 @@ class ConsoleGame
         }
     }
 
-    private function readInput(string $prompt): array
+    public function draw(): void
+    {
+        if (empty($this->game->getMatch())) {
+            $this->println("No matches available.");
+            return;
+        }
+
+        [$player1, $player2] = $this->game->getMatch()->getPlayers();
+
+        if ($this->game->getMatch()->getCurrentGameService() === $player1) {
+            $scorePlayer1 = $this->game->getMatch()->hasLackService() ? "+ " : "* ";
+            $scorePlayer2 = "  ";
+        } else {
+            $scorePlayer1 = "  ";
+            $scorePlayer2 = $this->game->getMatch()->hasLackService() ? "+ " : "* ";
+        }
+
+        [$score1, $score2] = $this->game->getScore($player1, $player2);
+
+        $biggerName = max(strlen($player1->getName()), strlen($player2->getName()));
+
+        $scorePlayer1 .= str_pad($player1->getName(), $biggerName, " ", STR_PAD_RIGHT) . ": {$score1}";
+        $scorePlayer2 .= str_pad($player2->getName(), $biggerName, " ", STR_PAD_RIGHT) . ": {$score2}";
+
+        foreach ($this->game->getMatch()->getSets() as $set) {
+            $gamesWon = $set->getPoints();
+            $player1Points = $gamesWon[0];
+            $player2Points = $gamesWon[1];
+
+            $scorePlayer1 .= $player1Points ? " {$player1Points}" : " -";
+            $scorePlayer2 .= $player2Points ? " {$player2Points}" : " -";
+        }
+
+        for ($i = 0; $i < $this->game->getMatch()->getPendingSets(); $i++) {
+            $scorePlayer1 .= " -";
+            $scorePlayer2 .= " -";
+        }
+
+        $this->println($scorePlayer1);
+        $this->println($scorePlayer2);
+
+        if ($this->game->getMatch()->isGameBall()) {
+            $this->println();
+            $this->printBoxedMessage("Game Ball!!!");
+            $this->println();
+        }
+        if ($this->game->getMatch()->isSetBall()) {
+            $this->printBoxedMessage("Set Ball!!!");
+            $this->println();
+        }
+        if ($this->game->getMatch()->isTieBreak()) {
+            $this->println();
+            $this->printBoxedMessage("Tie Break!!!");
+            $this->println();
+        }
+    }
+
+    public function readInput(string $prompt): array
     {
         $input = trim(readline($prompt));
         if (empty($input)) {
@@ -105,12 +167,12 @@ class ConsoleGame
         return [$command, $args];
     }
 
-    private function println(string $message = ""): void
+    public function println(string $message = ""): void
     {
         echo $message . PHP_EOL;
     }
 
-    function printBoxedMessage(string $message): void
+    public function printBoxedMessage(string $message): void
     {
         $length = strlen($message);
         $border = str_repeat('*', $length + 4);

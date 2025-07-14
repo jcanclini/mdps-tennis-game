@@ -10,7 +10,7 @@ class PointServiceCommand extends Command
 
     public function execute(?string $args = null): void
     {
-        $this->game->getMatch()->addPointToService();
-        $this->game->drawScoreboard();
+        $this->console->getGame()->getMatch()->addPointToService();
+        $this->console->draw();;
     }
 }

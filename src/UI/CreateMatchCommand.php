@@ -13,32 +13,32 @@ class CreateMatchCommand extends Command
     public function execute(?string $args = null): void
     {
         if ($this->isMatchInProgress()) {
-            $this->println("You cannot create a player while a match is in progress.");
+            $this->console->println("You cannot create a player while a match is in progress.");
             return;
         }
 
         if (empty($args) || !preg_match('/^sets:\d+;ids:(\d+(,\d+)*)$/', $args)) {
-            $this->println("Invalid command format. Use 'sets:number_of_sets;ids:player_id1,player_id2'.");
+            $this->console->println("Invalid command format. Use 'sets:number_of_sets;ids:player_id1,player_id2'.");
             return;
         }
 
         [$sets, $ids] = $this->parseArguments($args);
 
         if (!in_array((int)$sets, TennisMatch::ALLOWED_SETS, true)) {
-            $this->println("Invalid number of sets. Only 3 or 5 sets are allowed.");
+            $this->console->println("Invalid number of sets. Only 3 or 5 sets are allowed.");
             return;
         }
 
-        $player1 = $this->game->getPlayer((int) $ids[0]);
-        $player2 = $this->game->getPlayer((int) $ids[1]);
+        $player1 = $this->console->getGame()->getPlayer((int) $ids[0]);
+        $player2 = $this->console->getGame()->getPlayer((int) $ids[1]);
 
         if (empty($player1) || empty($player2)) {
-            $this->println("Invalid player IDs provided.");
+            $this->console->println("Invalid player IDs provided.");
             return;
         }
 
-        $this->game->createMatch($player1, $player2, (int)$sets);
-        $this->game->drawScoreboard();
+        $this->console->getGame()->createMatch($player1, $player2, (int)$sets);
+        $this->console->draw();;
     }
 
     private function parseArguments(string $args): array

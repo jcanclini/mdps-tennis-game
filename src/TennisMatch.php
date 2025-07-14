@@ -71,6 +71,14 @@ class TennisMatch
         return $this->setsToPlay - count($this->sets);
     }
 
+    public function getPoints(): array
+    {
+        return [
+            $this->currentSet()->getCurrentGame()->getPoints($this->player1),
+            $this->currentSet()->getCurrentGame()->getPoints($this->player2),
+        ];
+    }
+
     public function getPlayerPoints(Player $player): int
     {
         return $this->currentSet()->getCurrentGame()->getPoints($player);

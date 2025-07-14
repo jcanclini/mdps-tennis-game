@@ -10,20 +10,20 @@ class ReadPlayersCommand extends Command
 
     public function execute(?string $args = null): void
     {
-        if (!$this->game->isLoggedIn()) {
-            $this->println("You must be logged in to view players.");
+        if (!$this->console->getGame()->isLoggedIn()) {
+            $this->console->println("You must be logged in to view players.");
             return;
         }
 
-        $players = $this->game->getPlayers();
+        $players = $this->console->getGame()->getPlayers();
 
         if (empty($players)) {
-            $this->println("No players available.");
+            $this->console->println("No players available.");
             return;
         }
 
         foreach ($players as $player) {
-            $this->println("name:{$player->getName()}; id:" . $player->getId());
+            $this->console->println("name:{$player->getName()}; id:" . $player->getId());
         }
     }
 }

@@ -11,17 +11,17 @@ class CreatePlayerCommand extends Command
     public function execute(?string $args = null): void
     {
         if ($this->isMatchInProgress()) {
-            $this->println("You cannot create a player while a match is in progress.");
+            $this->console->println("You cannot create a player while a match is in progress.");
             return;
         }
 
         if (empty($args) || !preg_match('/^name:[^;]+$/', $args)) {
-            $this->println("Invalid command format. Use 'name:player_name'.");
+            $this->console->println("Invalid command format. Use 'name:player_name'.");
             return;
         }
 
         $name = explode(":", $args);
 
-        $this->game->createPlayer($name[1]);
+        $this->console->getGame()->createPlayer($name[1]);
     }
 }

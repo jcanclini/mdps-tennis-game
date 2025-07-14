@@ -10,7 +10,7 @@ class PointRestCommand extends Command
 
     public function execute(?string $args = null): void
     {
-        $this->game->getMatch()->addPointToRest();
-        $this->game->drawScoreboard();
+        $this->console->getGame()->getMatch()->addPointToRest();
+        $this->console->draw();;
     }
 }

@@ -9,7 +9,7 @@ class LoginCommand extends Command
     public function execute(?string $args = null): void
     {
         if (!preg_match('/^name:[^;]+;password:[^;]+$/', $args)) {
-            $this->println("Invalid command format. Use 'name:your_name;password:your_password'.");
+            $this->console->println("Invalid command format. Use 'name:your_name;password:your_password'.");
             return;
         }
 
@@ -19,6 +19,6 @@ class LoginCommand extends Command
         $password = explode(":", $password);
 
 
-        $this->game->login($name[1], $password[1]);
+        $this->console->getGame()->login($name[1], $password[1]);
     }
 }

@@ -98,6 +98,11 @@ class TennisGame
         return $this->players[$id] ?? null;
     }
 
+    public function getScore(): array
+    {
+        return $this->scoreboard->getScore();
+    }
+
     public function getBoard(): Scoreboard
     {
         return $this->scoreboard;
@@ -127,10 +132,5 @@ class TennisGame
         assert($this->loggedUser !== null, 'No referee logged in.');
 
         return $this->loggedUser->getName();
-    }
-
-    public function drawScoreboard(): void
-    {
-        $this->scoreboard->draw();
     }
 }

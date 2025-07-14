@@ -6,6 +6,16 @@ namespace Tennis;
 
 class Scoreboard
 {
+    private const PLAYER1 = 0;
+    private const PLAYER2 = 1;
+
+    private const SCORE_MAP = [
+        0 => '0',
+        1 => '15',
+        2 => '30',
+        3 => '40',
+    ];
+
     private TennisMatch $match;
 
     public function setMatch(TennisMatch $match): void
@@ -13,77 +23,19 @@ class Scoreboard
         $this->match = $match;
     }
 
-    public function draw(): void
+    public function getScore(): array
     {
-        if (empty($this->match)) {
-            $this->println("No matches available.");
-            return;
-        }
-
-        [$player1, $player2] = $this->match->getPlayers();
-
-        if ($this->match->getCurrentGameService() === $player1) {
-            $scorePlayer1 = $this->match->hasLackService() ? "+ " : "* ";
-            $scorePlayer2 = "  ";
-        } else {
-            $scorePlayer1 = "  ";
-            $scorePlayer2 = $this->match->hasLackService() ? "+ " : "* ";
-        }
-
-        [$score1, $score2] = $this->getScore($player1, $player2);
-
-        $biggerName = max(strlen($player1->getName()), strlen($player2->getName()));
-
-        $scorePlayer1 .= str_pad($player1->getName(), $biggerName, " ", STR_PAD_RIGHT) . ": {$score1}";
-        $scorePlayer2 .= str_pad($player2->getName(), $biggerName, " ", STR_PAD_RIGHT) . ": {$score2}";
-
-        foreach ($this->match->getSets() as $set) {
-            $gamesWon = $set->getPoints();
-            $player1Points = $gamesWon[0];
-            $player2Points = $gamesWon[1];
-
-            $scorePlayer1 .= $player1Points ? " {$player1Points}" : " -";
-            $scorePlayer2 .= $player2Points ? " {$player2Points}" : " -";
-        }
-
-        for ($i = 0; $i < $this->match->getPendingSets(); $i++) {
-            $scorePlayer1 .= " -";
-            $scorePlayer2 .= " -";
-        }
-
-        $this->println($scorePlayer1);
-        $this->println($scorePlayer2);
-
-        if ($this->match->isGameBall()) {
-            $this->println();
-            $this->printBoxedMessage("Game Ball!!!");
-            $this->println();
-        }
-        if ($this->match->isSetBall()) {
-            $this->printBoxedMessage("Set Ball!!!");
-            $this->println();
-        }
         if ($this->match->isTieBreak()) {
-            $this->println();
-            $this->printBoxedMessage("Tie Break!!!");
-            $this->println();
+            return $this->match->getPoints();
         }
-    }
 
-    public function getScore(Player $player1, Player $player2): array
-    {
-        if (!$this->match->isTieBreak()) {
-            return [
-                $this->getScoreForPlayer($player1),
-                $this->getScoreForPlayer($player2)
-            ];
-        }
+        $points = $this->match->getPoints();
 
         if (
-            $this->match->getPlayerPoints($player1) >= Game::MIN_POINTS_TO_WIN - 1 &&
-            $this->match->getPlayerPoints($player2) >= Game::MIN_POINTS_TO_WIN - 1
+            $points[self::PLAYER1] >= Game::MIN_POINTS_TO_WIN - 1 &&
+            $points[self::PLAYER2] >= Game::MIN_POINTS_TO_WIN - 1
         ) {
-            $diff = $this->match->getPlayerPoints($player1) - $this->match->getPlayerPoints($player2);
+            $diff = $points[0] - $points[1];
 
             return match ($diff) {
                 0 => ['40', '40'],
@@ -93,38 +45,8 @@ class Scoreboard
         }
 
         return [
-            $this->getScoreForPlayer($player1),
-            $this->getScoreForPlayer($player2)
+            self::SCORE_MAP[$points[self::PLAYER1]],
+            self::SCORE_MAP[$points[self::PLAYER2]]
         ];
-    }
-
-    public function getScoreForPlayer(Player $player): string
-    {
-        return match ($this->match->getPlayerPoints($player)) {
-            0 => '0',
-            1 => '15',
-            2 => '30',
-            3 => '40',
-        };
-    }
-
-    protected function print(string $message): void
-    {
-        echo $message;
-    }
-
-    protected function println(string $message = ""): void
-    {
-        echo $message . PHP_EOL;
-    }
-
-    protected function printBoxedMessage(string $message): void
-    {
-        $length = strlen($message);
-        $border = str_repeat('*', $length + 4);
-
-        echo $border . PHP_EOL;
-        echo "* $message *" . PHP_EOL;
-        echo $border . PHP_EOL;
     }
 }

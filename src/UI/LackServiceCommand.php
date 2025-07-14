@@ -10,7 +10,7 @@ class LackServiceCommand extends Command
 
     public function execute(?string $args = null): void
     {
-        $this->game->getMatch()->lackService();
-        $this->game->drawScoreboard();
+        $this->console->getGame()->getMatch()->lackService();
+        $this->console->draw();;
     }
 }

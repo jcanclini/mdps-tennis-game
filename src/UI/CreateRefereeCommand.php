@@ -9,7 +9,7 @@ class CreateRefereeCommand extends Command
     public function execute(?string $args = null): void {
     {
         if (!preg_match('/^name:[^;]+;password:[^;]+$/', $args)) {
-            $this->println("Invalid command format. Use 'name:your_name;password:your_password'.");
+            $this->console->println("Invalid command format. Use 'name:your_name;password:your_password'.");
             return;
         }
 
@@ -18,7 +18,7 @@ class CreateRefereeCommand extends Command
         $name = explode(":", $name);
         $password = explode(":", $password);
 
-        $this->game->createReferee($name[1], $password[1]);
+        $this->console->getGame()->createReferee($name[1], $password[1]);
      }
     }
 }
