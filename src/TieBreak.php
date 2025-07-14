@@ -8,7 +8,7 @@ class TieBreak extends Game
 {
     public const MIN_POINTS_TO_WIN = 6;
 
-    public function __construct(
+    private function __construct(
         int $id,
         protected Player $service,
         protected Player $rest,
