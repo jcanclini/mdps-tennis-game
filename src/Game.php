@@ -112,9 +112,9 @@ class Game
         return $this->points[$player->getId()];
     }
 
-    public static function create(int $id, Turn $turn): static
+    public static function create(int $id, Turn $turn): self
     {
-        return new static(
+        return new self(
             $id,
             $turn->getService(),
             $turn->getRest()
