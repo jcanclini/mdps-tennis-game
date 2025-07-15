@@ -9,6 +9,9 @@ class Game
     const MIN_POINTS_TO_WIN = 4;
     const MIN_POINT_DIFFERENCE = 2;
 
+    /**
+     * @var array<int, int> Points scored by each player.
+     */
     protected array $points;
 
     protected bool $lackService = false;
