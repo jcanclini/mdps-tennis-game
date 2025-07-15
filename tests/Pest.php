@@ -84,11 +84,11 @@ function createMatch(
 function simulateSetWin(\Tennis\Set $set, \Tennis\Player $player): void
 {
     for ($i = 0; $i < \Tennis\Set::MIN_GAMES_TO_WIN; $i++) {
-        simulateGameWin($set, $player);
+        simulateSetGameWin($set, $player);
     }
 }
 
-function simulateGameWin(\Tennis\Set $set, \Tennis\Player $player): void
+function simulateSetGameWin(\Tennis\Set $set, \Tennis\Player $player): void
 {
     for ($i = 0; $i < \Tennis\Game::MIN_POINTS_TO_WIN; $i++) {
         if ($set->getCurrentGame()->getService() === $player) {
