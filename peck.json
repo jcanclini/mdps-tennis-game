@@ -1,8 +1,13 @@
 {
-  "preset": "base",
-  "ignore": {
-    "words": ["php"],
-    "paths": ["./src/"]
-  }
+    "preset": "base",
+    "ignore": {
+        "words": ["php", "println", "args"],
+        "paths": ["./tests/"],
+        "extensions": ["php", "json", "neon", "pdf"],
+        "files": [
+            "peck.json",
+            "composer.json",
+            "phpstan.neon"
+        ]
+    }
 }
-

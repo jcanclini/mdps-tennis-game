@@ -27,5 +27,21 @@
     "allow-plugins": {
       "pestphp/pest-plugin": true
     }
+  },
+  "scripts": {
+    "test:all": [
+      "@test",
+      "@test:static",
+      "@test:peck"
+    ],
+    "test": [
+      "pest --colors=always"
+    ],
+    "test:static": [
+      "phpstan analyse -c phpstan.neon"
+    ],
+    "test:peck": [
+      "peck --config=peck.json"
+    ]
   }
 }
