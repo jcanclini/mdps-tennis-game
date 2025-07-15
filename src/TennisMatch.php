@@ -109,6 +109,11 @@ class TennisMatch
         return $this->currentSet()->isSetBall();
     }
 
+    public function isMatchBall(): bool
+    {
+        return $this->getPendingSets() === 1 && $this->currentSet()->isSetBall();
+    }
+
     public function isTieBreak(): bool
     {
         return $this->currentSet()->isTieBreak();
