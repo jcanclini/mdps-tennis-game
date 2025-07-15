@@ -98,3 +98,24 @@ function simulateSetGameWin(\Tennis\Set $set, \Tennis\Player $player): void
         }
     }
 }
+
+function simulateSetGamesWon(\Tennis\TennisMatch $match, \Tennis\Player $player, int $games): void
+{
+    for ($i = 0; $i < $games; $i++) {
+        simulateGamePointsWon($match, $player, \Tennis\Game::MIN_POINTS_TO_WIN);
+    }
+}
+
+function simulateGamePointsWon(\Tennis\TennisMatch $match, \Tennis\Player $player, int $points): void
+{
+    assert($points >= 0, 'Points must be a non-negative integer.');
+    assert($points <= \Tennis\Game::MIN_POINTS_TO_WIN, 'Points must be less than or equal to ' . \Tennis\Game::MIN_POINTS_TO_WIN);
+
+    for ($i = 0; $i < $points; $i++) {
+        if ($match->getCurrentGameService() === $player) {
+            $match->addPointToService();
+        } else {
+            $match->addPointToRest();
+        }
+    }
+}
