@@ -147,8 +147,7 @@ class ConsoleGame
             $this->println();
         }
         if ($this->game->getMatch()->isTieBreak()) {
-            $this->println();
-            $this->printBoxedMessage("Tie Break!!!");
+                        $this->printBoxedMessage("Tie Break!!!");
             $this->println();
         }
         if ($this->game->getMatch()->isMatchBall()) {
