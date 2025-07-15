@@ -151,6 +151,10 @@ class ConsoleGame
             $this->printBoxedMessage("Tie Break!!!");
             $this->println();
         }
+        if ($this->game->getMatch()->isMatchBall()) {
+            $this->printBoxedMessage("Match Ball!!!");
+            $this->println();
+        }
     }
 
     public function readInput(string $prompt): array
