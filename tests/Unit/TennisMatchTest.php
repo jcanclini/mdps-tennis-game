@@ -1,6 +1,8 @@
 <?php
 
+use Tennis\Game;
 use Tennis\Player;
+use Tennis\Scoreboard;
 use Tennis\Set;
 
 function simulateGameWinFromMatch(\Tennis\TennisMatch $match, \Tennis\Player $player): void
@@ -40,3 +42,31 @@ it('player 1 won the first set', function () {
 
     expect($match->getWinner()->getName())->toBe('Nadal');
 });
+
+it('is match ball when player is ', function () {
+    $player1 = new Player(1, 'Nadal');
+    $match = createMatch(1, $player1);
+    $score = new Scoreboard();
+    $score->setMatch($match);
+
+    simulateSetGamesWon($match, $player1, 11);
+
+    simulateGamePointsWon($match, $player1, Game::MIN_POINTS_TO_WIN - 1);
+
+    expect($match->isMatchBall())->toBeTrue();
+});
+
+
+it('simulate tie break', function () {
+    $player1 = new Player(1, 'Nadal');
+    $player2 = new Player(2, 'Federer');
+    $match = createMatch(1, $player1, $player2);
+
+    for ($i = 0; $i < 6; $i++) {
+        simulateSetGamesWon($match, $player1, 1);
+        simulateSetGamesWon($match, $player2, 1);
+    }
+
+    expect($match->getSets())->toHaveCount(1);
+    expect($match->isTieBreak())->toBeTrue();
+})->only();
