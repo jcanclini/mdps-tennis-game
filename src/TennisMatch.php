@@ -10,22 +10,23 @@ class TennisMatch
 {
     const ALLOWED_SETS = [3, 5];
 
-    const MIN_SETS_TO_WIN = [3 => 2, 5 => 3];
-
+    /**
+     * @var array<int, Set>
+     */
     private array $sets = [];
 
     private Turn $turn;
 
     private \DateTimeImmutable $date;
 
-    private function __construct(
+    public function __construct(
         private readonly int $id,
-        private Player $player1,
-        private Player $player2,
+        Player $player1,
+        Player $player2,
         private readonly int $setsToPlay
     ) {
         assert(in_array($setsToPlay, self::ALLOWED_SETS), 'Max sets must be either 3 or 5.');
-        $this->turn = Turn::create($player1, $player2);
+        $this->turn = Turn::createRandom($player1, $player2);
         $this->sets[] = $this->createSet();
         $this->date = new \DateTimeImmutable();
     }
@@ -74,8 +75,8 @@ class TennisMatch
     public function getPoints(): array
     {
         return [
-            $this->currentSet()->getCurrentGame()->getPoints($this->player1),
-            $this->currentSet()->getCurrentGame()->getPoints($this->player2),
+            $this->currentSet()->getCurrentGame()->getPoints($this->turn->getPlayer1()),
+            $this->currentSet()->getCurrentGame()->getPoints($this->turn->getPlayer2()),
         ];
     }
 
@@ -126,12 +127,12 @@ class TennisMatch
 
     public function getWinner(): ?Player
     {
-        if ($this->isWinner($this->player1)) {
-            return $this->player1;
+        if ($this->isWinner($this->turn->getPlayer1())) {
+            return $this->turn->getPlayer1();
         }
 
-        if ($this->isWinner($this->player2)) {
-            return $this->player2;
+        if ($this->isWinner($this->turn->getPlayer1())) {
+            return $this->turn->getPlayer1();
         }
 
         return null;
@@ -154,22 +155,22 @@ class TennisMatch
      */
     public function getPlayers(): array
     {
-        return [$this->player1, $this->player2];
+        return $this->turn->getPlayers();
     }
 
     public function getMinSetsToWin(): int
     {
-        return self::MIN_SETS_TO_WIN[$this->setsToPlay];
+        return intdiv($this->setsToPlay, 2) + 1;
     }
 
     private function createSet(): Set
     {
         $this->turn->switch();
 
-        return Set::create(
+        return new Set(
             count($this->sets) + 1,
-            $this->player1,
-            $this->player2
+            $this->turn->getService(),
+            $this->turn->getRest()
         );
     }
 
