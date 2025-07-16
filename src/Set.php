@@ -10,9 +10,6 @@ class Set
     const MIN_GAMES_FOR_TIEBREAK = 12;
     const MIN_POINT_DIFFERENCE = 2;
 
-    private const PLAYER_1 = 0;
-    private const PLAYER_2 = 1;
-
     /**
      * @var array<int, Game|TieBreak>
      */
@@ -20,12 +17,6 @@ class Set
 
     private Turn $turn;
 
-    /**
-     * 
-     * @param int $id 
-     * @param Player $player1 
-     * @param Player $player2  
-     */
     public function __construct(
         private readonly int $id,
         Player $player1,
@@ -44,8 +35,8 @@ class Set
     {
         assert($this->isFinished() === false, 'Cannot add point to service when the set is finished.');
 
-        $this->currentGame()->addPointToService();
-        if (!$this->isTieBreak() && $this->currentGame()->isFinished()) {
+        $this->getCurrentGame()->addPointToService();
+        if (!$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
             $this->createGame();
         }
     }
@@ -54,8 +45,8 @@ class Set
     {
         assert($this->isFinished() === false, 'Cannot add point to rest when the set is finished.');
 
-        $this->currentGame()->addPointToRest();
-        if (!$this->isTieBreak() && $this->currentGame()->isFinished()) {
+        $this->getCurrentGame()->addPointToRest();
+        if (!$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
             $this->createGame();
         }
     }
@@ -67,28 +58,26 @@ class Set
 
     public function getWinner(): ?Player
     {
-        if ($this->currentGame() instanceof TieBreak) {
-            return $this->currentGame()->getWinner();
+        if ($this->getCurrentGame() instanceof TieBreak) {
+            return $this->getCurrentGame()->getWinner();
         }
 
-        $gamesWon = $this->getGamesWon();
-
-        if ($this->isWinner($gamesWon[self::PLAYER_1], $gamesWon[self::PLAYER_2])) {
+        if ($this->isWinner($this->turn->getPlayer1())) {
             return $this->turn->getPlayer1();
         }
 
-        if ($this->isWinner($gamesWon[self::PLAYER_2], $gamesWon[self::PLAYER_1])) {
+        if ($this->isWinner($this->turn->getPlayer2())) {
             return $this->turn->getPlayer2();
         }
 
         return null;
     }
 
-    private function isWinner(int $playerGamesWon, int $opponentGamesWon): bool
+    private function isWinner(Player $player): bool
     {
         return (
-            $playerGamesWon >= self::MIN_GAMES_TO_WIN &&
-            $playerGamesWon - $opponentGamesWon >= self::MIN_POINT_DIFFERENCE
+            $this->getGamesWonBy($player) >= self::MIN_GAMES_TO_WIN &&
+            $this->getGamesWonBy($player) - $this->getGamesWonBy($this->turn->getOpponent($player)) >= self::MIN_POINT_DIFFERENCE
         );
     }
 
@@ -100,61 +89,35 @@ class Set
         return $this->games;
     }
 
-    public function getCurrentGame(): Game
-    {
-        return $this->currentGame();
-    }
-
-    public function getPoints(): array
-    {
-        return $this->getGamesWon();
-    }
-
     public function isSetBall(): bool
     {
-        return ($this->hasSetBallOpportunity(self::PLAYER_1, self::PLAYER_2) ||
-            $this->hasSetBallOpportunity(self::PLAYER_2, self::PLAYER_1)) &&
-            $this->currentGame()->isGameBall();
+        return ($this->hasSetBallOpportunity($this->turn->getPlayer1()) ||
+            $this->hasSetBallOpportunity($this->turn->getPlayer2())) &&
+            $this->getCurrentGame()->isGameBall();
     }
 
-    private function hasSetBallOpportunity(int $playerIndex, int $opponentIndex): bool
+    private function hasSetBallOpportunity(Player $player): bool
     {
-        $gamesWon = $this->getGamesWon();
-        return $gamesWon[$playerIndex] >= self::MIN_GAMES_TO_WIN - 1
-            && $gamesWon[$opponentIndex] < self::MIN_GAMES_TO_WIN - 1;
+        return $this->getGamesWonBy($player) >= self::MIN_GAMES_TO_WIN - 1
+            && $this->getGamesWonBy($this->turn->getOpponent($player)) < self::MIN_GAMES_TO_WIN - 1;
     }
 
     public function isTieBreak(): bool
     {
-        return $this->currentGame() instanceof TieBreak;
+        return $this->getCurrentGame() instanceof TieBreak;
     }
 
-    private function hasMinGamesToWin($player): bool
+    private function hasMinGamesToWin(Player $player): bool
     {
-        $gamesWon = $this->getGamesWon();
-        return $gamesWon[$player] === self::MIN_GAMES_TO_WIN;
+        return $this->getGamesWonBy($player) === self::MIN_GAMES_TO_WIN;
     }
 
-    private function getGamesWon(): array
+    public function getGamesWonBy(Player $player): int
     {
-        $gamesWon = [self::PLAYER_1 => 0, self::PLAYER_2 => 0];
-
-        foreach ($this->games as $game) {
-            if (!$game->isFinished()) {
-                continue;
-            }
-
-            if ($game->getWinner() === $this->turn->getPlayer1()) {
-                $gamesWon[self::PLAYER_1]++;
-            } else {
-                $gamesWon[self::PLAYER_2]++;
-            }
-        }
-
-        return $gamesWon;
+        return count(array_filter($this->games, fn(Game $game) => $game->isFinished() && $game->getWinner()->is($player)));
     }
 
-    private function currentGame(): Game
+    public function getCurrentGame(): Game
     {
         return end($this->games);
     }
@@ -174,7 +137,7 @@ class Set
     private function shouldPlayTieBreak(): bool
     {
         return count($this->games) >= self::MIN_GAMES_FOR_TIEBREAK &&
-            $this->hasMinGamesToWin(self::PLAYER_1) &&
-            $this->hasMinGamesToWin(self::PLAYER_2);
+            $this->hasMinGamesToWin($this->turn->getPlayer1()) &&
+            $this->hasMinGamesToWin($this->turn->getPlayer2());
     }
 }
