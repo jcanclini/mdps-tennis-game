@@ -10,7 +10,7 @@ class TieBreak extends Game
 
     private Turn $turn;
 
-    private function __construct(
+    public function __construct(
         int $id,
         protected Player $service,
         protected Player $rest,
