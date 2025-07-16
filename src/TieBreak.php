@@ -8,17 +8,19 @@ class TieBreak extends Game
 {
     public const MIN_POINTS_TO_WIN = 6;
 
+    private Turn $turn;
+
     private function __construct(
         int $id,
         protected Player $service,
         protected Player $rest,
-        protected Turn $turn
     ) {
         parent::__construct(
             $id,
             $service,
             $rest
         );
+        $this->turn = Turn::create($service, $rest);
     }
 
     public function addPointToService(): void
