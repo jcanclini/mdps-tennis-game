@@ -20,4 +20,9 @@ class Player
     {
         return $this->name;
     }
+
+    public function is(Player $other): bool
+    {
+        return $this->id === $other->getId();
+    }
 }
