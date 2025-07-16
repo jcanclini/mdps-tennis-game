@@ -2,17 +2,13 @@
 
 use Tennis\Player;
 use Tennis\TieBreak;
-use Tennis\Turn;
 
 function createTieBreak(Player $service, Player $rest): TieBreak
 {
-    return TieBreak::create(
+    return new TieBreak(
         1,
-        Turn::create(
-            $service,
-            $rest,
-            $service
-        )
+        $service,
+        $rest
     );
 }
 
