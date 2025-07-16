@@ -49,21 +49,19 @@ function createTennisGame(?\Tennis\Player $player1 = null, ?\Tennis\Player $play
 {
     $player1 = $player1 ?? createPlayer(1, 'Nadal');
     $player2 = $player2 ?? createPlayer(2, 'Federer');
-    return \Tennis\Game::create(
+    return new \Tennis\Game(
         1,
-        \Tennis\Turn::create(
-            $player1,
-            $player2
-        )
+        $player1,
+        $player2
     );
 }
 
 function createSet(?\Tennis\Player $player1 = null, ?\Tennis\Player $player2 = null): \Tennis\Set
 {
-    return \Tennis\Set::create(
+    return new \Tennis\Set(
         1,
-        service: $player1 ?? createPlayer(1, 'Nadal'),
-        rest: $player2 ?? createPlayer(2, 'Federer')
+        player1: $player1 ?? createPlayer(1, 'Nadal'),
+        player2: $player2 ?? createPlayer(2, 'Federer')
     );
 }
 
@@ -73,7 +71,7 @@ function createMatch(
     ?\Tennis\Player $player2 = null,
     int $setsToPlay = 3
 ): \Tennis\TennisMatch {
-    return \Tennis\TennisMatch::create(
+    return new \Tennis\TennisMatch(
         id: $id,
         player1: $player1 ?? createPlayer(1, 'Nadal'),
         player2: $player2 ?? createPlayer(2, 'Federer'),
