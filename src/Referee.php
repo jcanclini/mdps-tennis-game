@@ -33,9 +33,4 @@ class Referee
     {
         return $this->name === $name && $this->password === $password;
     }
-
-    public static function create(int $id, string $name, string $password): self
-    {
-        return new self($id, $name, $password);
-    }
 }

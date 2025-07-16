@@ -177,13 +177,4 @@ class TennisMatch
     {
         return end($this->sets) ?: $this->createSet();
     }
-
-    public static function create(
-        int $id,
-        Player $player1,
-        Player $player2,
-        int $setsToPlay
-    ): self {
-        return new self($id, $player1, $player2, $setsToPlay);
-    }
 }

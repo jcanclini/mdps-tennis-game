@@ -111,13 +111,4 @@ class Game
     {
         return $this->points[$player->getId()];
     }
-
-    public static function create(int $id, Turn $turn): self
-    {
-        return new self(
-            $id,
-            $turn->getService(),
-            $turn->getRest()
-        );
-    }
 }

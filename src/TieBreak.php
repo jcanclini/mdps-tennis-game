@@ -41,14 +41,4 @@ class TieBreak extends Game
             $this->rest = $this->turn->getRest();
         }
     }
-
-    public static function create(int $id, Turn $turn): static
-    {
-        return new static(
-            $id,
-            $turn->getService(),
-            $turn->getRest(),
-            Turn::create($turn->getService(), $turn->getRest())
-        );
-    }
 }

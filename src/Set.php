@@ -181,9 +181,4 @@ class Set
             $this->hasMinGamesToWin(self::PLAYER_1) &&
             $this->hasMinGamesToWin(self::PLAYER_2);
     }
-
-    public static function create(int $id, Player $service, Player $rest): self
-    {
-        return new self($id, $service, $rest);
-    }
 }
