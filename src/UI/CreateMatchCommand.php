@@ -45,8 +45,8 @@ class CreateMatchCommand extends Command
     {
         $parts = explode(';', $args);
         $sets = explode(':', $parts[0])[1];
-        $ids = explode(':', $parts[1])[1];
+        $ids = explode(',', explode(':', $parts[1])[1]);
 
-        return [$sets, explode(',', $ids[1])];
+        return [$sets, $ids];
     }
 }
