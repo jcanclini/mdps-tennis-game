@@ -17,8 +17,6 @@ class TennisController
     private array $referees = [];
     private ?int $loggedReferee = null;
 
-    private ?TennisMatch $match = null;
-
     /**
      * @var array<int, TennisMatch>
      */
@@ -66,14 +64,14 @@ class TennisController
     ): void {
         assert($this->loggedReferee !== null, 'You must be logged in to create a match.');
 
-        $this->match = new TennisMatch(
+        $this->matches[] = new TennisMatch(
             count($this->matches) + 1,
             $player1,
             $player2,
             $setsToPlay
         );
 
-        $this->scoreboard->setMatch($this->match);
+        $this->scoreboard->setMatch($this->currentMatch());
     }
 
     /**
@@ -106,21 +104,21 @@ class TennisController
 
     public function currentMatch(): ?TennisMatch
     {
-        return $this->match;
+        return end($this->matches) ?: null;
     }
 
     public function getMatchId(): int
     {
-        assert($this->match !== null, 'No match created yet.');
+        assert($this->currentMatch() !== null, 'No match created yet.');
 
-        return $this->match->getId();
+        return $this->currentMatch()->getId();
     }
 
     public function getMatchDate(): string
     {
-        assert($this->match !== null, 'No match created yet.');
+        assert($this->currentMatch() !== null, 'No match created yet.');
 
-        return $this->match->getDate()->format('Y-m-d H:i:s');
+        return $this->currentMatch()->getDate()->format('Y-m-d H:i:s');
     }
 
     public function getRefereeName(): string
