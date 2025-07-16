@@ -73,20 +73,17 @@ class Set
         return null;
     }
 
-    private function isWinner(Player $player): bool
-    {
-        return (
-            $this->getGamesWonBy($player) >= self::MIN_GAMES_TO_WIN &&
-            $this->getGamesWonBy($player) - $this->getGamesWonBy($this->turn->getOpponent($player)) >= self::MIN_POINT_DIFFERENCE
-        );
-    }
-
     /**
      * @return Game[]
      */
     public function getGames(): array
     {
         return $this->games;
+    }
+
+    public function isTieBreak(): bool
+    {
+        return $this->getCurrentGame() instanceof TieBreak;
     }
 
     public function isSetBall(): bool
@@ -96,15 +93,18 @@ class Set
             $this->getCurrentGame()->isGameBall();
     }
 
+    private function isWinner(Player $player): bool
+    {
+        return (
+            $this->getGamesWonBy($player) >= self::MIN_GAMES_TO_WIN &&
+            $this->getGamesWonBy($player) - $this->getGamesWonBy($this->turn->getOpponent($player)) >= self::MIN_POINT_DIFFERENCE
+        );
+    }
+
     private function hasSetBallOpportunity(Player $player): bool
     {
         return $this->getGamesWonBy($player) >= self::MIN_GAMES_TO_WIN - 1
             && $this->getGamesWonBy($this->turn->getOpponent($player)) < self::MIN_GAMES_TO_WIN - 1;
-    }
-
-    public function isTieBreak(): bool
-    {
-        return $this->getCurrentGame() instanceof TieBreak;
     }
 
     private function hasMinGamesToWin(Player $player): bool
