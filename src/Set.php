@@ -22,7 +22,7 @@ class Set
         Player $player1,
         Player $player2
     ) {
-        $this->turn = new Turn($player1, $player2, $player1);
+        $this->turn = Turn::create($player1, $player2);
         $this->createGame();
     }
 
