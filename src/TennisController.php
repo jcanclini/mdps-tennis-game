@@ -31,7 +31,7 @@ class TennisController
 
     public function createReferee(string $name, string $password): void
     {
-        $this->referees[count($this->referees) + 1] = new Referee(count($this->referees) + 1, $name, $password);
+        $this->referees[] = new Referee(count($this->referees) + 1, $name, $password);
     }
 
     public function login(string $name, string $password): void
