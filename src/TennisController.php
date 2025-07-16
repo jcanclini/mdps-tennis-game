@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tennis;
 
-class TennisGame
+class TennisController
 {
     /**
      * @var array<int, Player>

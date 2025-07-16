@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tennis\UI;
 
 use Tennis\Scoreboard;
-use Tennis\TennisGame;
+use Tennis\TennisController;
 
 class ConsoleGame
 {
-    private TennisGame $game;
+    private TennisController $game;
 
     private const COMMANDS = [
         ConsoleCommand::CREATE_REFEREE->value => CreateRefereeCommand::class,
@@ -27,10 +27,10 @@ class ConsoleGame
 
     public function __construct()
     {
-        $this->game = new TennisGame(new Scoreboard());
+        $this->game = new TennisController(new Scoreboard());
     }
 
-    public function getGame(): TennisGame
+    public function getGame(): TennisController
     {
         return $this->game;
     }
