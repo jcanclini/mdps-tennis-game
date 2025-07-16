@@ -1,0 +1,47 @@
+@startuml tennis_game
+
+class TennisMatch{}
+
+class Player{}
+
+class Referee{}
+
+class Scoreboard{}
+
+class Set{}
+
+class Game{
+    '-service: Player
+    '-rest: Player
+    -points: array
+}
+
+class TieBreak extends Game{}
+
+' class Point{}
+
+class Turn{}
+
+Referee .> TennisMatch
+TennisMatch -> Scoreboard
+
+TennisMatch o--> "2" Player
+TennisMatch *--> Turn
+TennisMatch *--> "3 ó 5" Set
+
+Set *--> "1..12" Game
+Set "0..1" *--> TieBreak
+'Set -> Turn
+
+'Game *--> "1..*" Point
+
+'TieBreak *-> Turn
+
+Turn -> Player : service
+Turn -> Player : rest
+
+TennisGame *--> TennisMatch
+TennisGame *--> Scoreboard
+TennisGame o--> Referee
+TennisGame o--> "0..*" Player
+@enduml
