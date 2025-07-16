@@ -33,6 +33,6 @@ abstract class Command
 
     protected function isMatchInProgress(): bool
     {
-        return $this->console->getGame()->getMatch() !== null;
+        return $this->console->getGame()->currentMatch() !== null;
     }
 }

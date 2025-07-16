@@ -105,7 +105,7 @@ class TennisController
         return $this->scoreboard;
     }
 
-    public function getMatch(): ?TennisMatch
+    public function currentMatch(): ?TennisMatch
     {
         return $this->match;
     }
