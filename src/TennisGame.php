@@ -31,7 +31,7 @@ class TennisGame
 
     public function createReferee(string $name, string $password): void
     {
-        $this->referees[count($this->referees) + 1] = Referee::create(count($this->referees) + 1, $name, $password);
+        $this->referees[count($this->referees) + 1] = new Referee(count($this->referees) + 1, $name, $password);
     }
 
     public function login(string $name, string $password): void
@@ -67,7 +67,7 @@ class TennisGame
     ): void {
         assert($this->loggedUser !== null, 'You must be logged in to create a match.');
 
-        $this->match = TennisMatch::create(
+        $this->match = new TennisMatch(
             count($this->matches) + 1,
             $player1,
             $player2,
