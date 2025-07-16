@@ -15,6 +15,7 @@ class TennisController
      * @var array<int, Referee>
      */
     private array $referees = [];
+    private ?int $loggedReferee = null;
 
     private ?TennisMatch $match = null;
 
@@ -22,8 +23,6 @@ class TennisController
      * @var array<int, TennisMatch>
      */
     private array $matches = [];
-
-    private ?Referee $loggedUser = null;
 
     public function __construct(
         private readonly Scoreboard $scoreboard
@@ -36,22 +35,22 @@ class TennisController
 
     public function login(string $name, string $password): void
     {
-        foreach ($this->referees as $referee) {
+        foreach ($this->referees as $key => $referee) {
             if ($referee->areCredentialsValid($name, $password)) {
-                $this->loggedUser = $referee;
+                $this->loggedReferee = $key;
             }
         }
     }
 
     public function logout(): void
     {
-        assert($this->loggedUser !== null, 'You must be logged in to log out.');
-        $this->loggedUser = null;
+        assert($this->loggedReferee !== null, 'You must be logged in to log out.');
+        $this->loggedReferee = null;
     }
 
     public function isLoggedIn(): bool
     {
-        return $this->loggedUser !== null;
+        return $this->loggedReferee !== null;
     }
 
     public function createPlayer(string $name): void
@@ -65,7 +64,7 @@ class TennisController
         Player $player2,
         int $setsToPlay
     ): void {
-        assert($this->loggedUser !== null, 'You must be logged in to create a match.');
+        assert($this->loggedReferee !== null, 'You must be logged in to create a match.');
 
         $this->match = new TennisMatch(
             count($this->matches) + 1,
@@ -126,8 +125,8 @@ class TennisController
 
     public function getRefereeName(): string
     {
-        assert($this->loggedUser !== null, 'No referee logged in.');
+        assert($this->loggedReferee !== null, 'No referee logged in.');
 
-        return $this->loggedUser->getName();
+        return $this->referees[$this->loggedReferee]->getName();
     }
 }
