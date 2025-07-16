@@ -14,7 +14,7 @@ class Set
     private const PLAYER_2 = 1;
 
     /**
-     * @var Game[]
+     * @var array<int, Game|TieBreak>
      */
     private array $games = [];
 
@@ -28,21 +28,16 @@ class Set
      */
     public function __construct(
         private readonly int $id,
-        private readonly Player $player1,
-        private readonly Player $player2
+        Player $player1,
+        Player $player2
     ) {
-        $this->turn = Turn::create($player1, $player2);
+        $this->turn = new Turn($player1, $player2, $player1);
         $this->createGame();
     }
 
     public function getId(): int
     {
         return $this->id;
-    }
-
-    public function getTurn(): Turn
-    {
-        return $this->turn;
     }
 
     public function addPointToService(): void
@@ -79,20 +74,21 @@ class Set
         $gamesWon = $this->getGamesWon();
 
         if ($this->isWinner($gamesWon[self::PLAYER_1], $gamesWon[self::PLAYER_2])) {
-            return $this->player1;
+            return $this->turn->getPlayer1();
         }
 
         if ($this->isWinner($gamesWon[self::PLAYER_2], $gamesWon[self::PLAYER_1])) {
-            return $this->player2;
+            return $this->turn->getPlayer2();
         }
 
         return null;
     }
 
-    private function isWinner(int $player1, int $player2): bool
+    private function isWinner(int $playerGamesWon, int $opponentGamesWon): bool
     {
         return (
-            $player1 >= self::MIN_GAMES_TO_WIN && $player1 - $player2 >= self::MIN_POINT_DIFFERENCE
+            $playerGamesWon >= self::MIN_GAMES_TO_WIN &&
+            $playerGamesWon - $opponentGamesWon >= self::MIN_POINT_DIFFERENCE
         );
     }
 
@@ -148,7 +144,7 @@ class Set
                 continue;
             }
 
-            if ($game->getWinner() === $this->player1) {
+            if ($game->getWinner() === $this->turn->getPlayer1()) {
                 $gamesWon[self::PLAYER_1]++;
             } else {
                 $gamesWon[self::PLAYER_2]++;
@@ -168,11 +164,11 @@ class Set
         $this->turn->switch();
 
         if ($this->shouldPlayTieBreak()) {
-            $this->games[] = TieBreak::create(count($this->games) + 1, $this->turn);
+            $this->games[] = new TieBreak(count($this->games) + 1, $this->turn->getService(), $this->turn->getRest());
             return;
         }
 
-        $this->games[] = Game::create(count($this->games) + 1, $this->turn);
+        $this->games[] = new Game(count($this->games) + 1, $this->turn->getService(), $this->turn->getRest());
     }
 
     private function shouldPlayTieBreak(): bool
