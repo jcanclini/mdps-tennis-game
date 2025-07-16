@@ -22,6 +22,11 @@ class Turn
         return clone $this->player2;
     }
 
+    public function getOpponent(Player $player): Player
+    {
+        return $player->is($this->getPlayer1()) ? $this->getPlayer2() : $this->getPlayer1();
+    }
+
     public function getService(): Player
     {
         return clone $this->service;
