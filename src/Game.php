@@ -16,7 +16,7 @@ class Game
 
     protected bool $lackService = false;
 
-    protected function __construct(
+    public function __construct(
         protected readonly int $id,
         protected Player $service,
         protected Player $rest
