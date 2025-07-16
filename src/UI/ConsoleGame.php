@@ -22,6 +22,7 @@ class ConsoleGame
         ConsoleCommand::POINT_REST->value => PointRestCommand::class,
         ConsoleCommand::LOGOUT->value => LogoutCommand::class,
         ConsoleCommand::HELP->value => HelpCommand::class,
+        ConsoleCommand::SIMULATION->value => SimulationCommand::class,
     ];
 
     public function __construct()
@@ -38,25 +39,6 @@ class ConsoleGame
     {
         $this->println("Welcome to the console tennis game!!");
         $this->println();
-
-        $this->game->createReferee('molina', '1234');
-        $this->game->login('molina', '1234');
-        $this->game->createPlayer('Nadal');
-        $this->game->createPlayer('Alcaraz');
-        $this->game->createPlayer('Zapata');
-
-        $this->game->createMatch(
-            $this->game->getPlayer(1),
-            $this->game->getPlayer(2),
-            3
-        );
-
-        $this->println(">createMatch sets:3;ids:1,2");
-        $this->println("id: {$this->game->getMatchId()}");
-        $this->println("date: {$this->game->getMatchDate()}");
-        $this->println("Referee: {$this->game->getRefereeName()}");
-        $this->println();
-        $this->draw();
 
         do {
             [$command, $args] = $this->readCommand();
@@ -105,7 +87,7 @@ class ConsoleGame
 
         [$player1, $player2] = $this->game->getMatch()->getPlayers();
 
-        if ($this->game->getMatch()->getCurrentGameService() === $player1) {
+        if ($this->game->getMatch()->getCurrentGameService()->is($player1)) {
             $scorePlayer1 = $this->game->getMatch()->hasLackService() ? "+ " : "* ";
             $scorePlayer2 = "  ";
         } else {
@@ -121,12 +103,8 @@ class ConsoleGame
         $scorePlayer2 .= str_pad($player2->getName(), $biggerName, " ", STR_PAD_RIGHT) . ": {$score2}";
 
         foreach ($this->game->getMatch()->getSets() as $set) {
-            $gamesWon = $set->getPoints();
-            $player1Points = $gamesWon[0];
-            $player2Points = $gamesWon[1];
-
-            $scorePlayer1 .= $player1Points ? " {$player1Points}" : " -";
-            $scorePlayer2 .= $player2Points ? " {$player2Points}" : " -";
+            $scorePlayer1 .= $set->getGamesWonBy($player1) ? " {$set->getGamesWonBy($player1)}" : " -";
+            $scorePlayer2 .= $set->getGamesWonBy($player2) ? " {$set->getGamesWonBy($player2)}" : " -";
         }
 
         for ($i = 0; $i < $this->game->getMatch()->getPendingSets(); $i++) {
@@ -134,25 +112,28 @@ class ConsoleGame
             $scorePlayer2 .= " -";
         }
 
+        $this->println();
         $this->println($scorePlayer1);
         $this->println($scorePlayer2);
+
+        if ($this->game->getMatch()->isFinished()) {
+            $this->println("Match finished!");
+            $this->println("Winner: " . $this->game->getMatch()->getWinner()->getName());
+            exit(0);
+        }
 
         if ($this->game->getMatch()->isGameBall()) {
             $this->println();
             $this->printBoxedMessage("Game Ball!!!");
-            $this->println();
         }
         if ($this->game->getMatch()->isSetBall()) {
             $this->printBoxedMessage("Set Ball!!!");
-            $this->println();
         }
         if ($this->game->getMatch()->isTieBreak()) {
-                        $this->printBoxedMessage("Tie Break!!!");
-            $this->println();
+            $this->printBoxedMessage("Tie Break!!!");
         }
         if ($this->game->getMatch()->isMatchBall()) {
             $this->printBoxedMessage("Match Ball!!!");
-            $this->println();
         }
     }
 

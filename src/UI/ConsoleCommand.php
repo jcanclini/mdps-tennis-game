@@ -19,6 +19,8 @@ enum ConsoleCommand: string
     case LOGIN = 'login';
     case LOGOUT = 'logout';
 
+    case SIMULATION = 'simulation';
+
     case HELP = 'help';
 
     public static function values(): array
