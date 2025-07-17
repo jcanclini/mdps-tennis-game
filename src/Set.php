@@ -37,26 +37,6 @@ class Set
         }
     }
 
-    // public function addPointToService(): void
-    // {
-    //     assert($this->isFinished() === false, 'Cannot add point to service when the set is finished.');
-
-    //     $this->getCurrentGame()->addPointTo($this->turn->getService());
-    //     if (!$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
-    //         $this->createGame();
-    //     }
-    // }
-
-    // public function addPointToRest(): void
-    // {
-    //     assert($this->isFinished() === false, 'Cannot add point to rest when the set is finished.');
-
-    //     $this->getCurrentGame()->addPointTo($this->turn->getRest());
-    //     if (!$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
-    //         $this->createGame();
-    //     }
-    // }
-
     public function isFinished(): bool
     {
         return $this->getWinner() !== null;
