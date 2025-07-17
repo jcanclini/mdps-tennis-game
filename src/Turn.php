@@ -8,47 +8,37 @@ class Turn
 {
     private bool $isFirtstTurn = true;
 
+    /**
+     * @param array{0: Player, 1: Player} $players 
+     * @return void 
+     */
     public function __construct(
-        private readonly Player $player1,
-        private readonly Player $player2,
-        private Player $service,
+        private array $players
     ) {}
-
-    public function getPlayer1(): Player
-    {
-        return $this->player1;
-    }
-
-    public function getPlayer2(): Player
-    {
-        return $this->player2;
-    }
 
     public function getOpponent(Player $player): Player
     {
-        return $player->is($this->getPlayer1()) ? $this->getPlayer2() : $this->getPlayer1();
+        return $player->is($this->players[0]) ? $this->players[1] : $this->players[0];
     }
 
     public function getService(): Player
     {
-        return $this->service;
+        return $this->players[0];
     }
 
     public function getServiceId(): int
     {
-        return $this->getService()->getId();
+        return $this->players[0]->getId();
     }
 
     public function getRest(): Player
     {
-        return $this->getPlayer1()->is($this->getService())
-            ? $this->getPlayer2()
-            : $this->getPlayer1();
+        return $this->players[1];
     }
 
     public function getRestId(): int
     {
-        return $this->getRest()->getId();
+        return $this->players[1]->getId();
     }
 
     /**
@@ -56,7 +46,7 @@ class Turn
      */
     public function getPlayers(): array
     {
-        return [$this->getPlayer1(), $this->getPlayer2()];
+        return $this->players;
     }
 
     public function switch(): void
@@ -66,17 +56,22 @@ class Turn
             return;
         }
 
-        $this->service = $this->getRest();
+        $this->players = array_reverse($this->players);
     }
 
-    public static function create(Player $player1, Player $player2): self
+    /**
+     * Creates a Turn instance with the given players.
+     * @param array<int, Player> $players 
+     * @return Turn 
+     */
+    public static function create(array $players): self
     {
-        return new self($player1, $player2, $player1);
+        return new self($players, $players[0]);
     }
 
-    public static function createRandom(Player $player1, Player $player2): self
+    public static function createRandom(array $players): self
     {
-        $service = rand(0, 1) === 0 ? $player1 : $player2;
-        return new self($player1, $player2, $service);
+        $service = $players[array_rand($players)];
+        return new self($players, $service);
     }
 }
