@@ -43,7 +43,7 @@ class TennisMatch
 
     public function addPointTo(Player $player): void
     {
-        assert($this->getWinner() === null, 'Match is already finished.');
+        assert($this->isFinished() === false, 'Match is already finished.');
         $this->currentSet()->addPointTo($player);
         if ($this->currentSet()->isFinished()) {
             $this->sets[] = $this->createSet();
@@ -105,21 +105,16 @@ class TennisMatch
 
     public function isFinished(): bool
     {
-        return $this->getWinner() !== null;
-    }
-
-    public function getWinner(): ?Player
-    {
         foreach ($this->turn->getPlayers() as $player) {
             if ($this->isWinner($player)) {
-                return $player;
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 
-    private function isWinner(Player $player): bool
+    public function isWinner(Player $player): bool
     {
         return $this->getMinSetsToWin() === count(array_filter($this->sets, fn(Set $set) => $set->isWinner($player)));
     }
