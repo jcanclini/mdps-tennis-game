@@ -8,11 +8,7 @@ use Tennis\Set;
 function simulateGameWinFromMatch(\Tennis\TennisMatch $match, \Tennis\Player $player): void
 {
     for ($i = 0; $i < \Tennis\Game::MIN_POINTS_TO_WIN; $i++) {
-        if ($match->getCurrentGameService() === $player) {
-            $match->addPointToService();
-        } else {
-            $match->addPointToRest();
-        }
+        $match->addPointTo($player);
     }
 }
 
@@ -25,7 +21,7 @@ it('has a valid initial state on creation', function () {
 });
 
 it('player 1 won the first set', function () {
-    $player1 = new Player(1, 'Nadal');
+    $player1 = createPlayer('Nadal');
     $match = createMatch(1, $player1);
 
     for ($m = 0; $m < $match->getMinSetsToWin(); $m++) {
@@ -69,4 +65,4 @@ it('simulate tie break', function () {
 
     expect($match->getSets())->toHaveCount(1);
     expect($match->isTieBreak())->toBeTrue();
-})->only();
+});

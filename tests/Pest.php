@@ -39,29 +39,34 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-
-function createPlayer(int $id = 1, string $name = 'Nadal'): \Tennis\Player
+function createTurn(?\Tennis\Player $server = null, ?\Tennis\Player $rest = null): \Tennis\Turn
 {
-    return new \Tennis\Player(id: $id, name: $name);
-}
-
-function createTennisGame(?\Tennis\Player $player1 = null, ?\Tennis\Player $player2 = null): \Tennis\Game
-{
-    $player1 = $player1 ?? createPlayer(1, 'Nadal');
-    $player2 = $player2 ?? createPlayer(2, 'Federer');
-    return new \Tennis\Game(
-        1,
-        $player1,
-        $player2
+    return \Tennis\Turn::create(
+        $server ?? createPlayer('Nadal'),
+        $rest ?? createPlayer('Federer')
     );
 }
 
-function createSet(?\Tennis\Player $player1 = null, ?\Tennis\Player $player2 = null): \Tennis\Set
+function createPlayer(string $name = 'Nadal'): \Tennis\Player
+{
+    return new \Tennis\Player(id: rand(1, 999), name: $name);
+}
+
+function createTennisGame(\Tennis\Turn $turn): \Tennis\Game
+{
+    $player1 = $player1 ?? createPlayer('Nadal');
+    $player2 = $player2 ?? createPlayer('Federer');
+    return new \Tennis\Game(
+        1,
+        $turn
+    );
+}
+
+function createSet(\Tennis\Turn $turn): \Tennis\Set
 {
     return new \Tennis\Set(
         1,
-        player1: $player1 ?? createPlayer(1, 'Nadal'),
-        player2: $player2 ?? createPlayer(2, 'Federer')
+        $turn
     );
 }
 
@@ -73,8 +78,8 @@ function createMatch(
 ): \Tennis\TennisMatch {
     return new \Tennis\TennisMatch(
         id: $id,
-        player1: $player1 ?? createPlayer(1, 'Nadal'),
-        player2: $player2 ?? createPlayer(2, 'Federer'),
+        player1: $player1 ?? createPlayer('Nadal'),
+        player2: $player2 ?? createPlayer('Federer'),
         setsToPlay: $setsToPlay
     );
 }
@@ -89,11 +94,7 @@ function simulateSetWin(\Tennis\Set $set, \Tennis\Player $player): void
 function simulateSetGameWin(\Tennis\Set $set, \Tennis\Player $player): void
 {
     for ($i = 0; $i < \Tennis\Game::MIN_POINTS_TO_WIN; $i++) {
-        if ($set->getCurrentGame()->getService() === $player) {
-            $set->addPointToService();
-        } else {
-            $set->addPointToRest();
-        }
+        $set->addPointTo($player);
     }
 }
 
@@ -110,10 +111,6 @@ function simulateGamePointsWon(\Tennis\TennisMatch $match, \Tennis\Player $playe
     assert($points <= \Tennis\Game::MIN_POINTS_TO_WIN, 'Points must be less than or equal to ' . \Tennis\Game::MIN_POINTS_TO_WIN);
 
     for ($i = 0; $i < $points; $i++) {
-        if ($match->getCurrentGameService() === $player) {
-            $match->addPointToService();
-        } else {
-            $match->addPointToRest();
-        }
+        $match->addPointTo($player);
     }
 }
