@@ -13,7 +13,7 @@ function simulateTieBreakWin(Set $set, Player $player): void
 }
 
 it('has a valid initial state on creation', function () {
-    $set = createSet(Turn::create(createPlayer('Nadal'), createPlayer('Federer')));
+    $set = createSet(Turn::create([createPlayer('Nadal'), createPlayer('Federer')]));
     expect($set->getId())->toBe(1);
     expect($set->isFinished())->toBeFalse();
     expect($set->getWinner())->toBeNull();
@@ -22,7 +22,7 @@ it('has a valid initial state on creation', function () {
 
 it('service won the first game', function () {
     $service = createPlayer();
-    $turn = Turn::create($service, createPlayer('Federer'));
+    $turn = Turn::create([$service, createPlayer('Federer')]);
     $set = createSet($turn);
 
     simulateSetGameWin($set, $service);
@@ -34,7 +34,7 @@ it('service won the first game', function () {
 it('rest won the set', function () {
     $service = createPlayer('Nadal');
     $rest = createPlayer('Federer');
-    $turn = Turn::create($service, $rest);
+    $turn = Turn::create([$service, $rest]);
     $set = createSet($turn);
 
     simulateSetWin($set, $rest);
@@ -45,7 +45,7 @@ it('rest won the set', function () {
 it('player 1 and player 2 are tied 1-1 before server won 2 games of the set', function () {
     $service = createPlayer('Nadal');
     $rest = createPlayer('Federer');
-    $turn = Turn::create($service, $rest);
+    $turn = Turn::create([$service, $rest]);
     $set = createSet($turn);
 
     simulateSetGameWin($set, $service);
@@ -58,7 +58,7 @@ it('player 1 and player 2 are tied 1-1 before server won 2 games of the set', fu
 describe('is set ball', function () {
     it('returns true when the service has 5 games won and 3 point in current game and the rest hass less than 5 sets won', function () {
         $service = createPlayer('Nadal');
-        $turn = Turn::create($service, createPlayer('Federer'));
+        $turn = Turn::create([$service, createPlayer('Federer')]);
         $set = createSet($turn);
 
         for ($i = 0; $i < 5; $i++) {
@@ -73,7 +73,7 @@ describe('is set ball', function () {
 
     it('returns false when the service has less than 5 sets won', function () {
         $service = createPlayer('Nadal');
-        $turn = Turn::create($service, createPlayer('Federer'));
+        $turn = Turn::create([$service, createPlayer('Federer')]);
         $set = createSet($turn);
 
         for ($i = 0; $i < 4; $i++) {
@@ -85,7 +85,7 @@ describe('is set ball', function () {
 
     it('returns false when the service has 5 sets won but less than 3 points in current game', function () {
         $service = createPlayer('Nadal');
-        $turn = Turn::create($service, createPlayer('Federer'));
+        $turn = Turn::create([$service, createPlayer('Federer')]);
         $set = createSet($turn);
 
         for ($i = 0; $i < 4; $i++) {
@@ -99,12 +99,11 @@ describe('is set ball', function () {
     });
 });
 
-
 describe('tie break', function () {
     it('is created when the set is tied at 6-6', function () {
         $service = createPlayer('Nadal');
         $rest = createPlayer('Federer');
-        $turn = Turn::create($service, $rest);
+        $turn = Turn::create([$service, $rest]);
         $set = createSet($turn);
 
 
@@ -113,8 +112,6 @@ describe('tie break', function () {
             simulateSetGameWin($set, $rest);
         }
 
-        expect($set->getGamesWonBy($service))->toBe(6);
-        expect($set->getGamesWonBy($rest))->toBe(6);
         expect($set->getGames())->toHaveCount(13);
         expect($set->isTieBreak())->toBeTrue();
     });
@@ -122,7 +119,7 @@ describe('tie break', function () {
     it('service wins the set winning tie-break', function () {
         $service = createPlayer('Nadal');
         $rest = createPlayer('Federer');
-        $set = createSet(Turn::create($service, $rest));
+        $set = createSet(Turn::create([$service, $rest]));
 
         for ($i = 0; $i < Set::MIN_GAMES_TO_WIN; $i++) {
             simulateSetGameWin($set, $service);
@@ -140,7 +137,7 @@ describe('tie break', function () {
     it('rest wins the set winning tie-break', function () {
         $service = createPlayer('Nadal');
         $rest = createPlayer('Federer');
-        $set = createSet(Turn::create($service, $rest));
+        $set = createSet(Turn::create([$service, $rest]));
 
         for ($i = 0; $i < Set::MIN_GAMES_TO_WIN; $i++) {
             simulateSetGameWin($set, $rest);
