@@ -17,7 +17,6 @@ it('has a valid initial state on creation', function () {
 
     expect($match->getSets())->toHaveCount(1);
     expect($match->isFinished())->toBeFalse();
-    expect($match->getWinner())->toBeNull();
 });
 
 it('player 1 won the first set', function () {
@@ -36,7 +35,7 @@ it('player 1 won the first set', function () {
         }
     }
 
-    expect($match->getWinner()->getName())->toBe('Nadal');
+    expect($match->isWinner($player1))->toBeTrue();
 });
 
 it('is match ball when player is ', function () {
