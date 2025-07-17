@@ -19,7 +19,7 @@ function simulateTieBreakWinner(TieBreak $tieBreak, Player $winner): void
 describe('TieBreak', function () {
 
     it('has a valid initial state on creation', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         createTieBreak($turn);
 
         expect($turn->getService()->getName())->toBe('Nadal');
@@ -27,36 +27,38 @@ describe('TieBreak', function () {
     });
 
     it('serves the first point', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $player1 = createPlayer('Nadal');
+        $player2 = createPlayer('Federer');
+        $turn = Turn::create([$player1, $player2]);
         $tieBreak = createTieBreak($turn);
 
         $tieBreak->addPointTo($turn->getService());
-        expect($tieBreak->getPoints($turn->getPlayer1()))->toBe(1);
-        expect($tieBreak->getPoints($turn->getPlayer2()))->toBe(0);
+        expect($tieBreak->getPoints($player1))->toBe(1);
+        expect($tieBreak->getPoints($player2))->toBe(0);
     });
 
     it('service wins the game', function () {
         $service = createPlayer('Nadal');
-        $turn = Turn::create($service, createPlayer('Federer'));
+        $turn = Turn::create([$service, createPlayer('Federer')]);
         $tieBreak = createTieBreak($turn);
 
         simulateTieBreakWinner($tieBreak, $service);
 
-        expect($tieBreak->getWinner()->getName())->toBe('Nadal');
+        expect($tieBreak->isWinner($service))->toBeTrue();
     });
 
     it('rest wins the game', function () {
         $rest = createPlayer('Federer');
-        $turn = Turn::create(createPlayer('Nadal'), $rest);
+        $turn = Turn::create([createPlayer('Nadal'), $rest]);
         $tieBreak = createTieBreak($turn);
 
         simulateTieBreakWinner($tieBreak, $rest);
 
-        expect($tieBreak->getWinner()->getName())->toBe('Federer');
+        expect($tieBreak->isWinner($rest))->toBeTrue();
     });
 
     it('switches service after odd points', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $tieBreak = createTieBreak($turn);
 
         expect($turn->getService()->getName())->toBe('Nadal');
@@ -76,7 +78,7 @@ describe('TieBreak', function () {
     it('is game ball when service has 6 points and rest has 4 or less', function () {
         $service = createPlayer('Nadal');
         $rest = createPlayer('Federer');
-        $turn = Turn::create($service, $rest);
+        $turn = Turn::create([$service, $rest]);
         $tieBreak = createTieBreak($turn);
 
         for ($i = 0; $i < 5; $i++) {

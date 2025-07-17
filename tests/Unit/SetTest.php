@@ -7,7 +7,7 @@ use Tennis\Turn;
 
 function simulateTieBreakWin(Set $set, Player $player): void
 {
-    for($i = 0; $i < TieBreak::MIN_POINTS_TO_WIN; $i++) {
+    for ($i = 0; $i < TieBreak::MIN_POINTS_TO_WIN; $i++) {
         $set->addPointTo($player);
     }
 }
@@ -16,7 +16,6 @@ it('has a valid initial state on creation', function () {
     $set = createSet(Turn::create([createPlayer('Nadal'), createPlayer('Federer')]));
     expect($set->getId())->toBe(1);
     expect($set->isFinished())->toBeFalse();
-    expect($set->getWinner())->toBeNull();
     expect($set->getGames())->toHaveCount(1);
 });
 
@@ -28,7 +27,7 @@ it('service won the first game', function () {
     simulateSetGameWin($set, $service);
 
     expect($set->getGames())->toHaveCount(2);
-    expect($set->getGames()[0]->getWinner())->toBe($service);
+    expect($set->getGames()[0]->isWinner($service))->toBeTrue();
 });
 
 it('rest won the set', function () {
@@ -39,7 +38,7 @@ it('rest won the set', function () {
 
     simulateSetWin($set, $rest);
 
-    expect($set->getWinner())->toBe($rest);
+    expect($set->isWinner($rest))->toBeTrue();
 });
 
 it('player 1 and player 2 are tied 1-1 before server won 2 games of the set', function () {
@@ -51,8 +50,8 @@ it('player 1 and player 2 are tied 1-1 before server won 2 games of the set', fu
     simulateSetGameWin($set, $service);
     simulateSetGameWin($set, $rest);
 
-    expect($set->getGames()[0]->getWinner()->getName())->toBe($service->getName());
-    expect($set->getGames()[1]->getWinner()->getName())->toBe($rest->getName());
+    expect($set->getGames()[0]->isWinner($service))->toBeTrue();
+    expect($set->getGames()[1]->isWinner($rest))->toBeTrue();
 });
 
 describe('is set ball', function () {
@@ -131,7 +130,7 @@ describe('tie break', function () {
         simulateTieBreakWin($set, $service);
 
         expect($set->isFinished())->toBeTrue();
-        expect($set->getWinner()->getName())->toBe($service->getName());
+        expect($set->isWinner($service))->toBeTrue();
     });
 
     it('rest wins the set winning tie-break', function () {
@@ -149,6 +148,6 @@ describe('tie break', function () {
         simulateTieBreakWin($set, $rest);
 
         expect($set->isFinished())->toBeTrue();
-        expect($set->getWinner()->getName())->toBe($rest->getName());
+        expect($set->isWinner($rest))->toBeTrue();
     });
 });

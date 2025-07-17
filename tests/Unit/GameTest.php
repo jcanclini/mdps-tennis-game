@@ -3,7 +3,7 @@
 use Tennis\Turn;
 
 it('has a valid initial state on creation', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
     expect($turn->getService()->getName())->toBe('Nadal');
     expect($turn->getRest()->getName())->toBe('Federer');
@@ -12,7 +12,7 @@ it('has a valid initial state on creation', function () {
 });
 
 it('increments the score of the server when scoring a point', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
     $game->addPointTo($turn->getService());
     expect($game->getPoints($turn->getService()))->toBe(1);
@@ -20,7 +20,7 @@ it('increments the score of the server when scoring a point', function () {
 });
 
 it('increments the score of the rest when scoring a point', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
     $game->addPointTo($turn->getRest());
     expect($game->getPoints($turn->getService()))->toBe(0);
@@ -29,7 +29,7 @@ it('increments the score of the rest when scoring a point', function () {
 
 describe('lack service', function () {
     it('does not change the score when the service has no faults', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
         $game->lackService();
         expect($game->getPoints($turn->getService()))->toBe(0);
@@ -38,7 +38,7 @@ describe('lack service', function () {
     });
 
     it('increments the rest score when the service has two fault', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
         $game->lackService();
         $game->lackService();
@@ -47,7 +47,7 @@ describe('lack service', function () {
     });
 
     it('fault service is reset after two faults', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
 
         $game->lackService();
@@ -56,7 +56,7 @@ describe('lack service', function () {
     });
 
     it('fault service is reset after a point is scored', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
 
         $game->lackService();
@@ -67,29 +67,29 @@ describe('lack service', function () {
 });
 
 it('service won the game', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
 
     for ($i = 0; $i < 4; $i++) {
         $game->addPointTo($turn->getService());
     }
 
-    expect($game->getWinner())->toBe($turn->getService());
+    expect($game->isWinner($turn->getService()))->toBeTrue();
 });
 
 it('rest won the game', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
 
     for ($i = 0; $i < 4; $i++) {
         $game->addPointTo($turn->getRest());
     }
 
-    expect($game->getWinner())->toBe($turn->getRest());
+    expect($game->isWinner($turn->getRest()))->toBeTrue();
 });
 
 it('service won the game after deuce', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
 
     for ($i = 0; $i < 3; $i++) {
@@ -99,11 +99,11 @@ it('service won the game after deuce', function () {
 
     $game->addPointTo($turn->getService());
     $game->addPointTo($turn->getService());
-    expect($game->getWinner())->toBe($turn->getService());
+    expect($game->isWinner($turn->getService()))->toBeTrue();
 });
 
 it('rest won the game after deuce', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
 
     for ($i = 0; $i < 3; $i++) {
@@ -113,22 +113,22 @@ it('rest won the game after deuce', function () {
 
     $game->addPointTo($turn->getRest());
     $game->addPointTo($turn->getRest());
-    expect($game->getWinner())->toBe($turn->getRest());
+    expect($game->isWinner($turn->getRest()))->toBeTrue();
 });
 
 it('not win the game if the player has less than 4 points', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
 
     for ($i = 1; $i < 4; $i++) {
         $game->addPointTo($turn->getService());
     }
 
-    expect($game->getWinner())->toBeNull(); //(\AssertionError::class, 'Game is not finished yet.');
+    expect($game->isWinner($turn->getRest()))->toBeFalse();
 });
 
 it('assert error if trying to add point to a finished game', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
 
     for ($i = 0; $i < 4; $i++) {
@@ -139,7 +139,7 @@ it('assert error if trying to add point to a finished game', function () {
 });
 
 it('asdfasdfasf', function () {
-    $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
 
     for ($i = 0; $i < 3; $i++) {
@@ -151,12 +151,12 @@ it('asdfasdfasf', function () {
     $game->lackService();
     $game->addPointTo($turn->getService());
     expect($game->isFinished())->toBeTrue();
-    expect($game->getWinner())->toBe($turn->getService());
+    expect($game->isWinner($turn->getService()))->toBeTrue();
 });
 
 describe('game ball', function () {
     it('is game ball when service has 3 points and rest has less than 3', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
         for ($i = 0; $i < 3; $i++) {
             $game->addPointTo($turn->getService());
@@ -166,7 +166,7 @@ describe('game ball', function () {
     });
 
     it('is game ball when rest has 3 points and service has less than 3', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
         for ($i = 0; $i < 3; $i++) {
             $game->addPointTo($turn->getRest());
@@ -175,7 +175,7 @@ describe('game ball', function () {
     });
 
     it('is game ball when service has 3 points and rest has adventage', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
         for ($i = 0; $i < 3; $i++) {
             $game->addPointTo($turn->getService());
@@ -185,7 +185,7 @@ describe('game ball', function () {
     });
 
     it('is game ball when service has 8 points and rest has 6', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
         for ($i = 0; $i < 6; $i++) {
             $game->addPointTo($turn->getService());
@@ -197,13 +197,13 @@ describe('game ball', function () {
     });
 
     it('is not game ball when both players have less than 3 points', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
         expect($game->isGameBall())->toBeFalse();
     });
 
     it('is not game ball when both players have more than 3 points', function () {
-        $turn = Turn::create(createPlayer('Nadal'), createPlayer('Federer'));
+        $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
         for ($i = 0; $i < 4; $i++) {
             $game->addPointTo($turn->getService());

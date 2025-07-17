@@ -41,10 +41,10 @@ expect()->extend('toBeOne', function () {
 
 function createTurn(?\Tennis\Player $server = null, ?\Tennis\Player $rest = null): \Tennis\Turn
 {
-    return \Tennis\Turn::create(
+    return \Tennis\Turn::create([
         $server ?? createPlayer('Nadal'),
         $rest ?? createPlayer('Federer')
-    );
+    ]);
 }
 
 function createPlayer(string $name = 'Nadal'): \Tennis\Player

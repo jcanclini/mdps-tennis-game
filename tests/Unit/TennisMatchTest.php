@@ -32,7 +32,7 @@ it('player 1 won the first set', function () {
 
     for ($s = 0; $s < $match->getMinSetsToWin(); $s++) {
         for ($g = 0; $g < Set::MIN_GAMES_TO_WIN; $g++) {
-            expect($match->getSets()[$s]->getGames()[$g]->getWinner()->getName())->toBe($player1->getName());
+            expect($match->getSets()[$s]->getGames()[$g]->isWinner($player1))->toBeTrue();
         }
     }
 
