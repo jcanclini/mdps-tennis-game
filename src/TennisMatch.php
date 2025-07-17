@@ -26,7 +26,7 @@ class TennisMatch
         private readonly int $setsToPlay
     ) {
         assert(in_array($setsToPlay, self::ALLOWED_SETS), 'Max sets must be either 3 or 5.');
-        $this->turn = Turn::createRandom($player1, $player2);
+        $this->turn = Turn::createRandom([$player1, $player2]);
         $this->sets[] = $this->createSet();
         $this->date = new \DateTimeImmutable();
     }
@@ -61,14 +61,6 @@ class TennisMatch
     public function getPendingSets(): int
     {
         return $this->setsToPlay - count($this->sets);
-    }
-
-    public function getPoints(): array
-    {
-        return [
-            $this->currentSet()->getCurrentGame()->getPoints($this->turn->getPlayer1()),
-            $this->currentSet()->getCurrentGame()->getPoints($this->turn->getPlayer2()),
-        ];
     }
 
     public function getPlayerPoints(Player $player): int
@@ -118,12 +110,10 @@ class TennisMatch
 
     public function getWinner(): ?Player
     {
-        if ($this->isWinner($this->turn->getPlayer1())) {
-            return $this->turn->getPlayer1();
-        }
-
-        if ($this->isWinner($this->turn->getPlayer1())) {
-            return $this->turn->getPlayer1();
+        foreach ($this->turn->getPlayers() as $player) {
+            if ($this->isWinner($player)) {
+                return $player;
+            }
         }
 
         return null;
@@ -131,14 +121,7 @@ class TennisMatch
 
     private function isWinner(Player $player): bool
     {
-        $setsWon = 0;
-        foreach ($this->sets as $set) {
-            if ($set->isFinished() && $set->getWinner() === $player) {
-                $setsWon++;
-            }
-        }
-
-        return $setsWon >= $this->getMinSetsToWin();
+        return $this->getMinSetsToWin() === count(array_filter($this->sets, fn(Set $set) => $set->isWinner($player)));
     }
 
     /**
