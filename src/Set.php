@@ -67,7 +67,7 @@ class Set
 
     public function isTieBreak(): bool
     {
-        return $this->getCurrentGame() instanceof TieBreak;
+        return count($this->games) === self::MIN_GAMES_FOR_TIEBREAK + 1;
     }
 
     public function isSetBall(): bool
