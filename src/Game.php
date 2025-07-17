@@ -46,23 +46,15 @@ class Game
 
     public function isFinished(): bool
     {
-        return $this->getWinner() !== null;
+        foreach ($this->turn->getPlayers() as $player) {
+            if ($this->isWinner($player)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public function getWinner(): ?Player
-    {
-        if ($this->isWinner($this->turn->getService())) {
-            return $this->turn->getService();
-        }
-
-        if ($this->isWinner($this->turn->getRest())) {
-            return $this->turn->getRest();
-        }
-
-        return null;
-    }
-
-    protected function isWinner(Player $player): bool
+    public function isWinner(Player $player): bool
     {
         return $this->getPoints($player) >= static::MIN_POINTS_TO_WIN &&
             ($this->getPoints($player) - $this->getPoints($this->turn->getOpponent($player))) >= static::MIN_POINT_DIFFERENCE;
@@ -74,10 +66,17 @@ class Game
             $this->isGameBallSituation($this->turn->getRest(), $this->turn->getService());
     }
 
-    private function isGameBallSituation(Player $player, Player $opponent): bool
+    private function isGameBallSituation(): bool
     {
-        return $this->getPoints($player) >= self::MIN_POINTS_TO_WIN - 1 &&
-            $this->getPoints($player) - $this->getPoints($opponent) >= 1;
+        foreach ($this->turn->getPlayers() as $player) {
+            if (
+                $this->getPoints($player) >= static::MIN_POINTS_TO_WIN - 1 &&
+                $this->getPoints($player) - $this->getPoints($this->turn->getOpponent($player)) >= 1
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function isLackService(): bool
