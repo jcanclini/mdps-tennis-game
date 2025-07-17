@@ -39,22 +39,12 @@ class Set
 
     public function isFinished(): bool
     {
-        return $this->getWinner() !== null;
-    }
-
-    public function getWinner(): ?Player
-    {
-        if ($this->getCurrentGame() instanceof TieBreak) {
-            return $this->getCurrentGame()->getWinner();
-        }
-
         foreach ($this->turn->getPlayers() as $player) {
             if ($this->isWinner($player)) {
-                return $player;
+                return true;
             }
         }
-
-        return null;
+        return false;
     }
 
     /**
@@ -78,8 +68,10 @@ class Set
     public function isWinner(Player $player): bool
     {
         return (
-            $this->getGamesWonBy($player) >= self::MIN_GAMES_TO_WIN &&
-            $this->getGamesWonBy($player) - $this->getGamesWonBy($this->turn->getOpponent($player)) >= self::MIN_POINT_DIFFERENCE
+            ($this->isTieBreak() && $this->getCurrentGame()->isWinner($player))
+            ||
+            ($this->getGamesWonBy($player) >= self::MIN_GAMES_TO_WIN &&
+                $this->getGamesWonBy($player) - $this->getGamesWonBy($this->turn->getOpponent($player)) >= self::MIN_POINT_DIFFERENCE)
         );
     }
 
