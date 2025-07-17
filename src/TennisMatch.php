@@ -41,21 +41,12 @@ class TennisMatch
         return $this->date;
     }
 
-    public function addPointToService(): void
+    public function addPointTo(Player $player): void
     {
         assert($this->getWinner() === null, 'Match is already finished.');
-        $this->currentSet()->addPointToService();
+        $this->currentSet()->addPointTo($player);
         if ($this->currentSet()->isFinished()) {
             $this->sets[] = $this->createSet();
-        }
-    }
-
-    public function addPointToRest(): void
-    {
-        assert($this->getWinner() === null, 'Match is already finished.');
-        $this->currentSet()->addPointToRest();
-        if ($this->currentSet()->isFinished()) {
-            $this->sets[] = $this->createSet();;
         }
     }
 
@@ -97,7 +88,7 @@ class TennisMatch
 
     public function getCurrentGameService(): Player
     {
-        return $this->currentSet()->getCurrentGame()->getService();
+        return $this->turn->getService();
     }
 
     public function isGameBall(): bool
@@ -169,8 +160,7 @@ class TennisMatch
 
         return new Set(
             count($this->sets) + 1,
-            $this->turn->getService(),
-            $this->turn->getRest()
+            $this->turn
         );
     }
 

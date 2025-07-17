@@ -18,35 +18,25 @@ class Game
 
     public function __construct(
         protected readonly int $id,
-        protected Player $service,
-        protected Player $rest
+        protected readonly Turn $turn
     ) {
+        $turn->switch();
         $this->points = [
-            $service->getId() => 0,
-            $rest->getId() => 0,
+            $turn->getServiceId() => 0,
+            $turn->getRestId() => 0,
         ];
     }
 
     public function lackService(): void
     {
         if ($this->isLackService()) {
-            $this->addPointTo($this->rest);
+            $this->addPointTo($this->turn->getRest());
         } else {
             $this->lackService = true;
         }
     }
 
-    public function addPointToService(): void
-    {
-        $this->addPointTo($this->service);
-    }
-
-    public function addPointToRest(): void
-    {
-        $this->addPointTo($this->rest);
-    }
-
-    protected function addPointTo(Player $player): void
+    public function addPointTo(Player $player): void
     {
         assert(!$this->isFinished(), 'Game is already finished.');
 
@@ -61,12 +51,12 @@ class Game
 
     public function getWinner(): ?Player
     {
-        if ($this->isWinner($this->service)) {
-            return $this->service;
+        if ($this->isWinner($this->turn->getService())) {
+            return $this->turn->getService();
         }
 
-        if ($this->isWinner($this->rest)) {
-            return $this->rest;
+        if ($this->isWinner($this->turn->getRest())) {
+            return $this->turn->getRest();
         }
 
         return null;
@@ -74,26 +64,14 @@ class Game
 
     protected function isWinner(Player $player): bool
     {
-        $opponent = $player === $this->service ? $this->rest : $this->service;
-
         return $this->getPoints($player) >= static::MIN_POINTS_TO_WIN &&
-            ($this->getPoints($player) - $this->getPoints($opponent)) >= static::MIN_POINT_DIFFERENCE;
-    }
-
-    public function getService(): Player
-    {
-        return $this->service;
-    }
-
-    public function getRest(): Player
-    {
-        return $this->rest;
+            ($this->getPoints($player) - $this->getPoints($this->turn->getOpponent($player))) >= static::MIN_POINT_DIFFERENCE;
     }
 
     public function isGameBall(): bool
     {
-        return $this->isGameBallSituation($this->service, $this->rest) ||
-            $this->isGameBallSituation($this->rest, $this->service);
+        return $this->isGameBallSituation($this->turn->getService(), $this->turn->getRest()) ||
+            $this->isGameBallSituation($this->turn->getRest(), $this->turn->getService());
     }
 
     private function isGameBallSituation(Player $player, Player $opponent): bool

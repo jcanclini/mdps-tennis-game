@@ -6,6 +6,8 @@ namespace Tennis;
 
 class Turn
 {
+    private bool $isFirtstTurn = true;
+
     public function __construct(
         private readonly Player $player1,
         private readonly Player $player2,
@@ -14,12 +16,12 @@ class Turn
 
     public function getPlayer1(): Player
     {
-        return clone $this->player1;
+        return $this->player1;
     }
 
     public function getPlayer2(): Player
     {
-        return clone $this->player2;
+        return $this->player2;
     }
 
     public function getOpponent(Player $player): Player
@@ -29,7 +31,12 @@ class Turn
 
     public function getService(): Player
     {
-        return clone $this->service;
+        return $this->service;
+    }
+
+    public function getServiceId(): int
+    {
+        return $this->getService()->getId();
     }
 
     public function getRest(): Player
@@ -37,6 +44,11 @@ class Turn
         return $this->getPlayer1()->is($this->getService())
             ? $this->getPlayer2()
             : $this->getPlayer1();
+    }
+
+    public function getRestId(): int
+    {
+        return $this->getRest()->getId();
     }
 
     /**
@@ -49,6 +61,11 @@ class Turn
 
     public function switch(): void
     {
+        if ($this->isFirtstTurn) {
+            $this->isFirtstTurn = false;
+            return;
+        }
+
         $this->service = $this->getRest();
     }
 

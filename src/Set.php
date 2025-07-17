@@ -15,14 +15,10 @@ class Set
      */
     private array $games = [];
 
-    private Turn $turn;
-
     public function __construct(
         private readonly int $id,
-        Player $player1,
-        Player $player2
+        private readonly Turn $turn
     ) {
-        $this->turn = Turn::create($player1, $player2);
         $this->createGame();
     }
 
@@ -31,25 +27,35 @@ class Set
         return $this->id;
     }
 
-    public function addPointToService(): void
+    public function addPointTo(Player $player): void
     {
         assert($this->isFinished() === false, 'Cannot add point to service when the set is finished.');
 
-        $this->getCurrentGame()->addPointToService();
+        $this->getCurrentGame()->addPointTo($player);
         if (!$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
             $this->createGame();
         }
     }
 
-    public function addPointToRest(): void
-    {
-        assert($this->isFinished() === false, 'Cannot add point to rest when the set is finished.');
+    // public function addPointToService(): void
+    // {
+    //     assert($this->isFinished() === false, 'Cannot add point to service when the set is finished.');
 
-        $this->getCurrentGame()->addPointToRest();
-        if (!$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
-            $this->createGame();
-        }
-    }
+    //     $this->getCurrentGame()->addPointTo($this->turn->getService());
+    //     if (!$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
+    //         $this->createGame();
+    //     }
+    // }
+
+    // public function addPointToRest(): void
+    // {
+    //     assert($this->isFinished() === false, 'Cannot add point to rest when the set is finished.');
+
+    //     $this->getCurrentGame()->addPointTo($this->turn->getRest());
+    //     if (!$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
+    //         $this->createGame();
+    //     }
+    // }
 
     public function isFinished(): bool
     {
@@ -124,14 +130,12 @@ class Set
 
     private function createGame(): void
     {
-        $this->turn->switch();
-
         if ($this->shouldPlayTieBreak()) {
-            $this->games[] = new TieBreak(count($this->games) + 1, $this->turn->getService(), $this->turn->getRest());
+            $this->games[] = new TieBreak(count($this->games) + 1, $this->turn);
             return;
         }
 
-        $this->games[] = new Game(count($this->games) + 1, $this->turn->getService(), $this->turn->getRest());
+        $this->games[] = new Game(count($this->games) + 1, $this->turn);
     }
 
     private function shouldPlayTieBreak(): bool
