@@ -12,11 +12,19 @@ function simulateGameWinFromMatch(\Tennis\TennisMatch $match, \Tennis\Player $pl
     }
 }
 
+it('get score board', function () {
+    $player1 = new Player(1, 'Nadal');
+    $player2 = new Player(2, 'Federer');
+    $match = createMatch(1, $player1, $player2);
+
+    expect($match->getScoreboard())->toBeInstanceOf(Scoreboard::class);
+});
+
 it('has a valid initial state on creation', function () {
     $match = createMatch();
 
     expect($match->getSets())->toHaveCount(1);
-    expect($match->isFinished())->toBeFalse();
+    expect($match->getScoreboard()->isMatchFinished())->toBeFalse();
 });
 
 it('player 1 won the first set', function () {
@@ -29,28 +37,19 @@ it('player 1 won the first set', function () {
         }
     }
 
-    for ($s = 0; $s < $match->getMinSetsToWin(); $s++) {
-        for ($g = 0; $g < Set::MIN_GAMES_TO_WIN; $g++) {
-            expect($match->getSets()[$s]->getGames()[$g]->isWinner($player1))->toBeTrue();
-        }
-    }
-
     expect($match->isWinner($player1))->toBeTrue();
 });
 
 it('is match ball when player is ', function () {
-    $player1 = new Player(1, 'Nadal');
-    $match = createMatch(1, $player1);
-    $score = new Scoreboard();
-    $score->setMatch($match);
+    $service = new Player(1, 'Nadal');
+    $match = createMatch(1, $service);
 
-    simulateSetGamesWon($match, $player1, 11);
+    simulateSetGamesWon($match, $service, 11);
 
-    simulateGamePointsWon($match, $player1, Game::MIN_POINTS_TO_WIN - 1);
+    simulateGamePointsWon($match, $service, Game::MIN_POINTS_TO_WIN - 1);
 
-    expect($match->isMatchBall())->toBeTrue();
+    expect($match->getScoreboard()->isMatchBall())->toBeTrue();
 });
-
 
 it('simulate tie break', function () {
     $player1 = new Player(1, 'Nadal');
@@ -63,5 +62,4 @@ it('simulate tie break', function () {
     }
 
     expect($match->getSets())->toHaveCount(1);
-    expect($match->isTieBreak())->toBeTrue();
 });

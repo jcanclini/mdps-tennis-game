@@ -1,5 +1,6 @@
 <?php
 
+use Tennis\Game;
 use Tennis\Turn;
 
 it('has a valid initial state on creation', function () {
@@ -7,24 +8,30 @@ it('has a valid initial state on creation', function () {
     $game = createTennisGame($turn);
     expect($turn->getService()->getName())->toBe('Nadal');
     expect($turn->getRest()->getName())->toBe('Federer');
-    expect($game->getPoints($turn->getService()))->toBe(0);
-    expect($game->getPoints($turn->getRest()))->toBe(0);
+    expect($game->getScoreboard()->getPoints())->toBe([
+        $turn->getService()->getId() => 0,
+        $turn->getRest()->getId() => 0,
+    ]);
 });
 
 it('increments the score of the server when scoring a point', function () {
     $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
     $game->addPointTo($turn->getService());
-    expect($game->getPoints($turn->getService()))->toBe(1);
-    expect($game->getPoints($turn->getRest()))->toBe(0);
+    expect($game->getScoreboard()->getPoints())->toBe([
+        $turn->getService()->getId() => 1,
+        $turn->getRest()->getId() => 0,
+    ]);
 });
 
 it('increments the score of the rest when scoring a point', function () {
     $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
     $game = createTennisGame($turn);
     $game->addPointTo($turn->getRest());
-    expect($game->getPoints($turn->getService()))->toBe(0);
-    expect($game->getPoints($turn->getRest()))->toBe(1);
+    expect($game->getScoreboard()->getPoints())->toBe([
+        $turn->getService()->getId() => 0,
+        $turn->getRest()->getId() => 1,
+    ]);
 });
 
 describe('lack service', function () {
@@ -32,9 +39,11 @@ describe('lack service', function () {
         $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
         $game = createTennisGame($turn);
         $game->lackService();
-        expect($game->getPoints($turn->getService()))->toBe(0);
-        expect($game->getPoints($turn->getRest()))->toBe(0);
-        expect($game->isLackService())->toBeTrue();
+        expect($game->getScoreboard()->getPoints())->toBe([
+            $turn->getService()->getId() => 0,
+            $turn->getRest()->getId() => 0,
+        ]);
+        expect($game->getScoreboard()->isLackService())->toBeTrue();
     });
 
     it('increments the rest score when the service has two fault', function () {
@@ -42,8 +51,10 @@ describe('lack service', function () {
         $game = createTennisGame($turn);
         $game->lackService();
         $game->lackService();
-        expect($game->getPoints($turn->getService()))->toBe(0);
-        expect($game->getPoints($turn->getRest()))->toBe(1);
+        expect($game->getScoreboard()->getPoints())->toBe([
+            $turn->getService()->getId() => 0,
+            $turn->getRest()->getId() => 1,
+        ]);
     });
 
     it('fault service is reset after two faults', function () {
@@ -52,7 +63,7 @@ describe('lack service', function () {
 
         $game->lackService();
         $game->lackService();
-        expect($game->isLackService())->toBeFalse();
+        expect($game->getScoreboard()->isLackService())->toBeFalse();
     });
 
     it('fault service is reset after a point is scored', function () {
@@ -62,7 +73,7 @@ describe('lack service', function () {
         $game->lackService();
         $game->addPointTo($turn->getRest());
 
-        expect($game->isLackService())->toBeFalse();
+        expect($game->getScoreboard()->isLackService())->toBeFalse();
     });
 });
 
@@ -152,6 +163,34 @@ it('asdfasdfasf', function () {
     $game->addPointTo($turn->getService());
     expect($game->isFinished())->toBeTrue();
     expect($game->isWinner($turn->getService()))->toBeTrue();
+});
+
+it('rest with adventage won the game if service has 2 faults (lack service)', function () {
+    $turn = Turn::create([createPlayer('Nadal'), createPlayer('Federer')]);
+    $game = createTennisGame($turn);
+
+    for ($i = 0; $i < Game::MIN_POINTS_TO_WIN; $i++) {
+        $game->addPointTo($turn->getService());
+        $game->addPointTo($turn->getRest());
+    }
+
+    expect($game->getScoreboard()->getPoints())->toBe([
+        $turn->getService()->getId() => Game::MIN_POINTS_TO_WIN,
+        $turn->getRest()->getId() => Game::MIN_POINTS_TO_WIN,
+    ]);
+
+    $game->addPointTo($turn->getRest()); // Rest has advantage
+    expect($game->getScoreboard()->getPoints())->toBe([
+        $turn->getService()->getId() => Game::MIN_POINTS_TO_WIN,
+        $turn->getRest()->getId() => Game::MIN_POINTS_TO_WIN + 1,
+    ]);
+
+    $game->lackService(); // Service has two faults
+    $game->lackService();
+    expect($game->getScoreboard()->getPoints())->toBe([
+        $turn->getService()->getId() => Game::MIN_POINTS_TO_WIN,
+        $turn->getRest()->getId() => Game::MIN_POINTS_TO_WIN + Game::MIN_POINT_DIFFERENCE,
+    ]);
 });
 
 describe('game ball', function () {

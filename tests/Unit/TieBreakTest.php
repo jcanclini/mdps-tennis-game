@@ -33,8 +33,10 @@ describe('TieBreak', function () {
         $tieBreak = createTieBreak($turn);
 
         $tieBreak->addPointTo($turn->getService());
-        expect($tieBreak->getPoints($player1))->toBe(1);
-        expect($tieBreak->getPoints($player2))->toBe(0);
+        expect($tieBreak->getScoreboard()->getPoints())->toBe([
+            $player1->getId() => 1,
+            $player2->getId() => 0,
+        ]);
     });
 
     it('service wins the game', function () {

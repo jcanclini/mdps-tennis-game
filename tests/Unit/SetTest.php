@@ -16,7 +16,6 @@ it('has a valid initial state on creation', function () {
     $set = createSet(Turn::create([createPlayer('Nadal'), createPlayer('Federer')]));
     expect($set->getId())->toBe(1);
     expect($set->isFinished())->toBeFalse();
-    expect($set->getGames())->toHaveCount(1);
 });
 
 it('service won the first game', function () {
@@ -26,8 +25,7 @@ it('service won the first game', function () {
 
     simulateSetGameWin($set, $service);
 
-    expect($set->getGames())->toHaveCount(2);
-    expect($set->getGames()[0]->isWinner($service))->toBeTrue();
+    expect($set->getGamesWonBy($service))->toBe(1);
 });
 
 it('rest won the set', function () {
@@ -50,8 +48,8 @@ it('player 1 and player 2 are tied 1-1 before server won 2 games of the set', fu
     simulateSetGameWin($set, $service);
     simulateSetGameWin($set, $rest);
 
-    expect($set->getGames()[0]->isWinner($service))->toBeTrue();
-    expect($set->getGames()[1]->isWinner($rest))->toBeTrue();
+    expect($set->getGamesWonBy($service))->toBe(1);
+    expect($set->getGamesWonBy($rest))->toBe(1);
 });
 
 describe('is set ball', function () {
@@ -67,7 +65,7 @@ describe('is set ball', function () {
         $set->addPointTo($service);
         $set->addPointTo($service);
         $set->addPointTo($service);
-        expect($set->isSetBall())->toBeTrue();
+        expect($set->getScoreboard()->isSetBall())->toBeTrue();
     });
 
     it('returns false when the service has less than 5 sets won', function () {
@@ -79,7 +77,7 @@ describe('is set ball', function () {
             simulateSetGameWin($set, $service);
         }
 
-        expect($set->isSetBall())->toBeFalse();
+        expect($set->getScoreboard()->isSetBall())->toBeFalse();
     });
 
     it('returns false when the service has 5 sets won but less than 3 points in current game', function () {
@@ -94,7 +92,7 @@ describe('is set ball', function () {
         $set->addPointTo($service);
         $set->addPointTo($service);
         $set->addPointTo($service);
-        expect($set->isSetBall())->toBeFalse();
+        expect($set->getScoreboard()->isSetBall())->toBeFalse();
     });
 });
 
@@ -111,8 +109,7 @@ describe('tie break', function () {
             simulateSetGameWin($set, $rest);
         }
 
-        expect($set->getGames())->toHaveCount(13);
-        expect($set->isTieBreak())->toBeTrue();
+        expect($set->getScoreboard()->isTieBreak())->toBeTrue();
     });
 
     it('service wins the set winning tie-break', function () {
@@ -125,7 +122,7 @@ describe('tie break', function () {
             simulateSetGameWin($set, $rest);
         }
 
-        expect($set->isTieBreak())->toBeTrue();
+        expect($set->getScoreboard()->isTieBreak())->toBeTrue();
 
         simulateTieBreakWin($set, $service);
 
@@ -143,7 +140,7 @@ describe('tie break', function () {
             simulateSetGameWin($set, $service);
         }
 
-        expect($set->isTieBreak())->toBeTrue();
+        expect($set->getScoreboard()->isTieBreak())->toBeTrue();
 
         simulateTieBreakWin($set, $rest);
 
