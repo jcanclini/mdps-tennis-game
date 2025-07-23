@@ -22,6 +22,7 @@ enum ConsoleCommand: string
     case SIMULATION = 'simulation';
 
     case HELP = 'help';
+    case EXIT = 'exit';
 
     public static function values(): array
     {
