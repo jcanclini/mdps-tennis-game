@@ -78,8 +78,7 @@ function createMatch(
 ): \Tennis\TennisMatch {
     return new \Tennis\TennisMatch(
         id: $id,
-        player1: $player1 ?? createPlayer('Nadal'),
-        player2: $player2 ?? createPlayer('Federer'),
+        turn: createTurn($player1, $player2),
         setsToPlay: $setsToPlay
     );
 }
