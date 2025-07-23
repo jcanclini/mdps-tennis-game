@@ -30,9 +30,7 @@ class TennisMatch extends View
     {
         do {
             $this->executeCommand();
-            echo "Rendering scoreboard...\n";
             $this->scoreBoard->render();
-            echo "Waiting for next command...\n";
         } while ($this->tennisController->currentMatchIsFinished() === false);
     }
 }
