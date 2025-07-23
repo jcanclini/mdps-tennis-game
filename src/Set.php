@@ -32,7 +32,16 @@ class Set
         assert($this->isFinished() === false, 'Cannot add point to service when the set is finished.');
 
         $this->getCurrentGame()->addPointTo($player);
-        if (!$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
+        if (!$this->isFinished() && !$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
+            $this->createGame();
+        }
+    }
+
+    public function lackService(): void
+    {
+        $this->getCurrentGame()->lackService();
+
+        if (!$this->isFinished() && !$this->isTieBreak() && $this->getCurrentGame()->isFinished()) {
             $this->createGame();
         }
     }
@@ -47,22 +56,9 @@ class Set
         return false;
     }
 
-    /**
-     * @return Game[]
-     */
-    public function getGames(): array
+    public function getGamesWonBy(Player $player): int
     {
-        return $this->games;
-    }
-
-    public function isTieBreak(): bool
-    {
-        return count($this->games) === self::MIN_GAMES_FOR_TIEBREAK + 1;
-    }
-
-    public function isSetBall(): bool
-    {
-        return $this->hasSetBallOpportunity() && $this->getCurrentGame()->isGameBall();
+        return count(array_filter($this->games, fn(Game $game) => $game->isWinner($player)));
     }
 
     public function isWinner(Player $player): bool
@@ -73,6 +69,24 @@ class Set
             ($this->getGamesWonBy($player) >= self::MIN_GAMES_TO_WIN &&
                 $this->getGamesWonBy($player) - $this->getGamesWonBy($this->turn->getOpponent($player)) >= self::MIN_POINT_DIFFERENCE)
         );
+    }
+
+    public function getScoreboard(): Scoreboard
+    {
+        return $this->getCurrentGame()
+            ->getScoreboard()
+            ->setSetBall($this->isSetBall())
+            ->setTieBreak($this->isTieBreak());
+    }
+
+    private function isTieBreak(): bool
+    {
+        return count($this->games) === self::MIN_GAMES_FOR_TIEBREAK + 1;
+    }
+
+    private function isSetBall(): bool
+    {
+        return $this->hasSetBallOpportunity() && $this->getCurrentGame()->isGameBall();
     }
 
     private function hasSetBallOpportunity(): bool
@@ -89,14 +103,9 @@ class Set
         return false;
     }
 
-    private function getGamesWonBy(Player $player): int
+    private function getCurrentGame(): Game
     {
-        return count(array_filter($this->games, fn(Game $game) => $game->isWinner($player)));
-    }
-
-    public function getCurrentGame(): Game
-    {
-        return end($this->games);
+        return $this->games[count($this->games) - 1];
     }
 
     private function createGame(): void
@@ -105,7 +114,7 @@ class Set
             $this->games[] = new TieBreak(count($this->games) + 1, $this->turn);
             return;
         }
-
+        
         $this->games[] = new Game(count($this->games) + 1, $this->turn);
     }
 
