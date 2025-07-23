@@ -62,12 +62,6 @@ class Game
 
     public function isGameBall(): bool
     {
-        return $this->isGameBallSituation($this->turn->getService(), $this->turn->getRest()) ||
-            $this->isGameBallSituation($this->turn->getRest(), $this->turn->getService());
-    }
-
-    private function isGameBallSituation(): bool
-    {
         foreach ($this->turn->getPlayers() as $player) {
             if (
                 $this->getPoints($player) >= static::MIN_POINTS_TO_WIN - 1 &&
@@ -79,13 +73,22 @@ class Game
         return false;
     }
 
-    public function isLackService(): bool
+    private function isLackService(): bool
     {
         return $this->lackService === true;
     }
 
-    public function getPoints(Player $player): int
+    private function getPoints(Player $player): int
     {
         return $this->points[$player->getId()];
+    }
+
+    public function getScoreboard(): Scoreboard
+    {
+        return new Scoreboard(
+            $this->points,
+            $this->isLackService(),
+            $this->isGameBall()
+        );
     }
 }
