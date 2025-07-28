@@ -60,13 +60,16 @@ class Game
             ($this->getPoints($player) - $this->getPoints($this->turn->getOpponent($player))) >= static::MIN_POINT_DIFFERENCE;
     }
 
-    public function isGameBall(): bool
+    public function isGameBallFor(Player $player): bool
+    {
+        return $this->getPoints($player) >= static::MIN_POINTS_TO_WIN - 1 &&
+            $this->getPoints($player) - $this->getPoints($this->turn->getOpponent($player)) >= 1;
+    }
+
+    private function isGameBall(): bool
     {
         foreach ($this->turn->getPlayers() as $player) {
-            if (
-                $this->getPoints($player) >= static::MIN_POINTS_TO_WIN - 1 &&
-                $this->getPoints($player) - $this->getPoints($this->turn->getOpponent($player)) >= 1
-            ) {
+            if ($this->isGameBallFor($player)) {
                 return true;
             }
         }
