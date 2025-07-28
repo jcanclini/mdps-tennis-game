@@ -46,6 +46,15 @@ class TennisMatch
         }
     }
 
+    public function lackService(): void
+    {
+        assert($this->isFinished() === false, 'Match is already finished.');
+        $this->currentSet()->lackService();
+        if (!$this->isFinished() && $this->currentSet()->isFinished()) {
+            $this->createSet();
+        }
+    }
+
     public function getScoreboard(): Scoreboard
     {
         return $this->currentSet()
@@ -56,30 +65,18 @@ class TennisMatch
             ->setMatchBall($this->isMatchBall());
     }
 
-    /**
-     * @return Set[] 
-     */
-    public function getSets(): array
-    {
-        return $this->sets;
-    }
-
-    public function getPendingSets(): int
+    private function getPendingSets(): int
     {
         return $this->setsToPlay - count($this->sets);
     }
 
-    public function lackService(): void
+    
+    private function isMatchBall(): bool
     {
-        $this->currentSet()->lackService();
+        return count($this->sets) >= $this->getMinSetsToWin() && $this->currentSet()->getScoreboard()->isSetBall();
     }
 
-    public function isMatchBall(): bool
-    {
-        return $this->getPendingSets() === 1 && $this->currentSet()->getScoreboard()->isSetBall();
-    }
-
-    public function isFinished(): bool
+    private function isFinished(): bool
     {
         foreach ($this->turn->getPlayers() as $player) {
             if ($this->isWinner($player)) {
@@ -90,12 +87,12 @@ class TennisMatch
         return false;
     }
 
-    public function isWinner(Player $player): bool
+    private function isWinner(Player $player): bool
     {
         return $this->getMinSetsToWin() === count(array_filter($this->sets, fn(Set $set) => $set->isWinner($player)));
     }
 
-    public function getMinSetsToWin(): int
+    private function getMinSetsToWin(): int
     {
         return intdiv($this->setsToPlay, 2) + 1;
     }
