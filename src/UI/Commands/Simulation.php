@@ -11,7 +11,7 @@ class Simulation extends Command
 {
     public function __construct($_, $tennisController)
     {
-        parent::__construct(new SimulationIO(), $tennisController);
+        parent::__construct(new SimulationIO($tennisController), $tennisController);
     }
 
     public function execute(?string $args = null): void

@@ -2,6 +2,7 @@
 
 namespace Tennis\UI\Commands;
 
+use Tennis\TennisController;
 use Tennis\UI\ViewIO;
 
 class SimulationIO extends ViewIO
@@ -16,8 +17,14 @@ class SimulationIO extends ViewIO
         'createMatch sets:3;ids:1,2'
     ];
 
+    public function __construct(private TennisController $tennisController) {}
+
     public function read(string $prompt = '>'): string
     {
+        if ($this->tennisController->getCurrentMatch() && $this->tennisController->getScoreboard()->isMatchFinished()) {
+            exit(0);
+        }
+
         sleep(1);
 
         if (empty($this->commands)) {
