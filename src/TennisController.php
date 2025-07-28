@@ -44,7 +44,6 @@ class TennisController
 
     public function logout(): void
     {
-        assert($this->loggedReferee !== null, 'You must be logged in to log out.');
         $this->loggedReferee = null;
     }
 
@@ -55,8 +54,7 @@ class TennisController
 
     public function createPlayer(string $name): void
     {
-        $player =  new Player(count($this->players) + 1, $name);
-        $this->players[$player->getId()] = $player;
+        $this->players[] = new Player(count($this->players) + 1, $name);
     }
 
     /**
@@ -70,7 +68,7 @@ class TennisController
         array $players,
         int $setsToPlay
     ): void {
-        assert($this->loggedReferee !== null, 'You must be logged in to create a match.');
+        assert($this->loggedReferee !== null, 'Referee must be logged in to create a match.');
 
         $this->turn = Turn::createRandom($players);
 
@@ -118,33 +116,12 @@ class TennisController
         return $this->players;
     }
 
-    public function currentMatchIsFinished(): bool
-    {
-        assert($this->getCurrentMatch() !== null, 'No match created yet.');
-
-        return $this->getCurrentMatch()->isFinished();
-    }
-
     public function getPlayer(int $id): ?Player
     {
-        return $this->players[$id] ?? null;
+        return array_find($this->players, fn(Player $player) => $player->getId() === $id);
     }
 
-    public function getMatchDate(): string
-    {
-        assert($this->getCurrentMatch() !== null, 'No match created yet.');
-
-        return $this->getCurrentMatch()->getDate()->format('Y-m-d H:i:s');
-    }
-
-    public function getRefereeName(): string
-    {
-        assert($this->loggedReferee !== null, 'No referee logged in.');
-
-        return $this->referees[$this->loggedReferee]->getName();
-    }
-
-    private function getCurrentMatch(): ?TennisMatch
+    public function getCurrentMatch(): ?TennisMatch
     {
         return $this->matches[count($this->matches) - 1] ?? null;
     }
