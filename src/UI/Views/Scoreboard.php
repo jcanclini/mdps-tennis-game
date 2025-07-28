@@ -37,6 +37,7 @@ class Scoreboard extends View
 
         if ($this->tennisController->getScoreboard()->isMatchFinished()) {
             $this->viewIO->writeLine("Match finished!");
+            return;
         }
 
         if ($this->tennisController->getScoreboard()->isGameBall()) {
@@ -61,10 +62,11 @@ class Scoreboard extends View
             $line = $scoreboard->isLackService() ? "+ " : "* ";
         }
 
-        $line .= str_pad($player->getName(), $this->getLongestPlayerNameLength($scoreboard), " ", STR_PAD_RIGHT) . ": {$score[$player->getId()]}";
+        $line .= str_pad($player->getName(), $this->getLongestPlayerNameLength($scoreboard->getPlayers()), " ", STR_PAD_RIGHT);
+        $line .= ": " . str_pad($score[$player->getId()], $this->getLongestStringLength($score), " ", STR_PAD_RIGHT);
 
         foreach ($scoreboard->getSets() as $set) {
-            $line .= $set->getGamesWonBy($player) ? " {$set->getGamesWonBy($player)}" : " -";
+            $line .= $set->getGamesWonBy($player) ? " {$set->getGamesWonBy($player)}" : " 0";
         }
 
         $line .= str_repeat(" -", $scoreboard->getPendingSets());
@@ -72,22 +74,31 @@ class Scoreboard extends View
         return $line;
     }
 
-    private function getLongestPlayerNameLength(ScoreboardDTO $scoreboard): int
+    private function getLongestPlayerNameLength(array $players): int
     {
-        return max(array_map(fn(Player $p) => strlen($p->getName()), $scoreboard->getPlayers()));
+        return $this->getLongestStringLength(array_map(fn(Player $p) => $p->getName(), $players));
+    }
+
+    private function getLongestStringLength(array $strings): int
+    {
+        return max(array_map(fn($string) => strlen($string), $strings));
     }
 
     private function getScore(ScoreboardDTO $scoreboard): array
     {
+        if ($scoreboard->isMatchFinished()) {
+            return array_fill_keys(array_keys($scoreboard->getPoints()), '0');
+        }
+
         [$p1Id, $p2Id] = array_map(fn(Player $p) => $p->getId(), $this->players);
 
         if ($scoreboard->isTieBreak()) {
-            return $scoreboard->getPoints();
+            return array_map(fn($point) => (string)$point, $scoreboard->getPoints());
         }
 
         if ($this->bothPlayersHasMinPointToWin($scoreboard)) {
             return match ($scoreboard->getPointsDifference()) {
-                0 => array_fill_keys([$p1Id, $p2Id], 'Deuce'),
+                0 => array_fill_keys([$p1Id, $p2Id], '40'),
                 1 => $this->getAdvantageScore($p1Id, $p2Id),
                 -1 => $this->getAdvantageScore($p2Id, $p1Id)
             };
