@@ -31,6 +31,6 @@ class TennisMatch extends View
         do {
             $this->executeCommand();
             $this->scoreBoard->render();
-        } while ($this->tennisController->currentMatchIsFinished() === false);
+        } while ($this->tennisController->getScoreboard()->isMatchFinished() === false);
     }
 }
