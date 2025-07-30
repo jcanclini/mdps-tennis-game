@@ -10,20 +10,18 @@ use Tennis\UI\Views\TennisMatch as ViewsTennisMatch;
 
 class CreateMatch extends Command
 {
-    public function execute(?string $args = null): void
-    {
-        if (empty($args) || !preg_match('/^sets:(\d+);ids:(\d+(?:,\d+)*)$/', $args, $matches)) {
-            $this->viewIO->writeLine("Invalid command format. Use 'sets:number_of_sets;ids:player_id1,player_id2'.");
-            return;
-        }
+    protected string $validationPattern = '/^sets:(\d+);ids:(\d+(?:,\d+)*)$/';
+    protected string $validationMessage = "Invalid command format. Use 'sets:number_of_sets;ids:player_id1,player_id2'. Only 3 or 5 sets are allowed.";
 
-        if (!in_array((int)$matches[1], TennisMatch::ALLOWED_SETS, true)) {
+    protected function run(): void
+    {
+        if (!in_array((int)$this->matches[1], TennisMatch::ALLOWED_SETS, true)) {
             $this->viewIO->writeLine("Invalid number of sets. Only 3 or 5 sets are allowed.");
             return;
         }
 
         $players = [];
-        $ids = array_map('intval', explode(',', $matches[2]));
+        $ids = array_map('intval', explode(',', $this->matches[2]));
         for ($i = 0; $i < 2; $i++) {
             $players[] = $this->tennisController->getPlayer((int) $ids[$i]);
             if (empty($players[$i])) {
@@ -32,9 +30,8 @@ class CreateMatch extends Command
             }
         }
 
-        $this->tennisController->createMatch($players, (int)$matches[1]);
-        $viewsTennisMatch = new ViewsTennisMatch($this->tennisController, $players);
-        $viewsTennisMatch->setIO($this->viewIO);
+        $this->tennisController->createMatch($players, (int)$this->matches[1]);
+        $viewsTennisMatch = new ViewsTennisMatch($this->viewIO, $this->tennisController, $players);
         $viewsTennisMatch->render();
     }
 }

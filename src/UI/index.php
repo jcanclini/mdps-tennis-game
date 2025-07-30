@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Tennis\TennisController;
+use Tennis\UI\ViewIO;
 use Tennis\UI\Views\Guest;
 
 assert_options(ASSERT_ACTIVE, 1);
@@ -16,7 +17,7 @@ $controller = new TennisController();
 $controller->createReferee('molina', '1234');
 $controller->createPlayer('Nadal');
 $controller->createPlayer('Federer');
-new Guest($controller)->render();
+new Guest(new ViewIO(), $controller)->render();
 
 // new GuestCommand(new TennisController())->execute();
 

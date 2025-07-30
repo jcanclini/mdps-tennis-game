@@ -9,16 +9,13 @@ use Tennis\UI\Views\Authenticated;
 
 class Login extends Command
 {
-    public function execute(?string $args = null): void
-    {
-        if (!preg_match('/name:([^;]+);password:([^;]+)/', $args, $matches)) {
-            $this->viewIO->writeLine("Invalid command format. Use 'name:your_name;password:your_password'.");
-            return;
-        }
+    protected string $validationPattern = '/^name:([^;]+);password:([^;]+)$/';
+    protected string $validationMessage = "Invalid command format. Use 'name:your_name;password:your_password'.";
 
-        if ($this->tennisController->login($matches[1], $matches[2])) {
-            $authenticated = new Authenticated($this->tennisController);
-            $authenticated->setIO($this->viewIO);
+    public function run(): void
+    {
+        if ($this->tennisController->login($this->matches[1], $this->matches[2])) {
+            $authenticated = new Authenticated($this->viewIO, $this->tennisController);
             $authenticated->render();
         } else {
             $this->viewIO->writeLine("Login failed. Please check your credentials.");

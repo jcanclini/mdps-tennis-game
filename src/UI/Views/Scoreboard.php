@@ -9,6 +9,7 @@ use Tennis\Player;
 use Tennis\Scoreboard as ScoreboardDTO;
 use Tennis\TennisController;
 use Tennis\UI\View;
+use Tennis\UI\ViewIO;
 
 class Scoreboard extends View
 {
@@ -21,9 +22,9 @@ class Scoreboard extends View
 
     private array $players;
 
-    public function __construct(TennisController $tennisController)
+    public function __construct(ViewIO $viewIO, TennisController $tennisController)
     {
-        parent::__construct($tennisController, []);
+        parent::__construct($viewIO, $tennisController);
         $this->players = $tennisController->getScoreboard()->getPlayers();
     }
 

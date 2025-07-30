@@ -11,12 +11,13 @@ use Tennis\UI\Commands\Logout;
 use Tennis\UI\Commands\ReadPlayers;
 use Tennis\UI\ConsoleCommand;
 use Tennis\UI\View;
+use Tennis\UI\ViewIO;
 
 class Authenticated extends View
 {
-    public function __construct(TennisController $tennisController)
+    public function __construct(ViewIO $viewIO, TennisController $tennisController)
     {
-        parent::__construct($tennisController, [
+        parent::__construct($viewIO, $tennisController, [
             ConsoleCommand::CREATE_PLAYER->value => CreatePlayer::class,
             ConsoleCommand::READ_PLAYERS->value => ReadPlayers::class,
             ConsoleCommand::CREATE_MATCH->value => CreateMatch::class,

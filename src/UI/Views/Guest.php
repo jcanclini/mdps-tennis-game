@@ -11,12 +11,13 @@ use Tennis\UI\Commands\Login;
 use Tennis\UI\Commands\Simulation;
 use Tennis\UI\ConsoleCommand;
 use Tennis\UI\View;
+use Tennis\UI\ViewIO;
 
 class Guest extends View
 {
-    public function __construct(TennisController $tennisController)
+    public function __construct(ViewIO $viewIO, TennisController $tennisController)
     {
-        parent::__construct($tennisController, [
+        parent::__construct($viewIO, $tennisController, [
             ConsoleCommand::CREATE_REFEREE->value => CreateReferee::class,
             ConsoleCommand::LOGIN->value => Login::class,
             ConsoleCommand::SIMULATION->value => Simulation::class,

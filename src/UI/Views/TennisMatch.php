@@ -10,19 +10,20 @@ use Tennis\UI\Commands\PointRest;
 use Tennis\UI\Commands\PointService;
 use Tennis\UI\ConsoleCommand;
 use Tennis\UI\View;
+use Tennis\UI\ViewIO;
 
 class TennisMatch extends View
 {
     protected Scoreboard $scoreBoard;
 
-    public function __construct(TennisController $tennisController)
+    public function __construct(ViewIO $viewIO, TennisController $tennisController)
     {
-        parent::__construct($tennisController, [
+        parent::__construct($viewIO, $tennisController, [
             ConsoleCommand::LACK_SERVICE->value => LackService::class,
             ConsoleCommand::POINT_SERVICE->value => PointService::class,
             ConsoleCommand::POINT_REST->value => PointRest::class,
         ]);
-        $this->scoreBoard = new Scoreboard($tennisController);
+        $this->scoreBoard = new Scoreboard($viewIO, $tennisController);
         $this->prompt = "match id:{$tennisController->getScoreboard()->getMatchId()}>";
     }
 

@@ -8,7 +8,7 @@ use Tennis\UI\Command;
 
 class Help extends Command
 {
-    public function execute(?string $args = null): void
+    public function run(?string $args = null): void
     {
         $this->viewIO->writeLine(
             "Available commands:" . PHP_EOL .

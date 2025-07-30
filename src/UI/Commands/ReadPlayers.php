@@ -8,7 +8,7 @@ use Tennis\UI\Command;
 
 class ReadPlayers extends Command
 {
-    public function execute(?string $args = null): void
+    public function run(): void
     {
         $players = $this->tennisController->getPlayers();
 

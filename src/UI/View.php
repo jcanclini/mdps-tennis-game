@@ -18,11 +18,6 @@ abstract class View
         $this->commands[ConsoleCommand::EXIT->value] = ConsoleCommand::EXIT->value;
     }
 
-    public function setIO(ViewIO $viewIO): void
-    {
-        $this->viewIO = $viewIO;
-    }
-
     protected function executeCommand(): ConsoleCommand
     {
         [$command, $args] = $this->readCommand();

@@ -14,10 +14,9 @@ class Simulation extends Command
         parent::__construct(new SimulationIO($tennisController), $tennisController);
     }
 
-    public function execute(?string $args = null): void
+    public function run(): void
     {
-        $guestView = new Guest($this->tennisController);
-        $guestView->setIO($this->viewIO);
+        $guestView = new Guest($this->viewIO, $this->tennisController);
         $guestView->render();
     }
 }

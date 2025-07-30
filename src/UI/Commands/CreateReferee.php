@@ -8,13 +8,11 @@ use Tennis\UI\Command;
 
 class CreateReferee extends Command
 {
-    public function execute(?string $args = null): void
-    {
-        if (!preg_match('/^name:([^;]+);password:([^;]+)$/', $args, $matches)) {
-            $this->viewIO->writeLine("Invalid command format. Use 'name:your_name;password:your_password'.");
-            return;
-        }
+    protected string $validationPattern = '/^name:([^;]+);password:([^;]+)$/';
+    protected string $validationMessage = "Invalid command format. Use 'name:your_name;;password:your_password'.";
 
-        $this->tennisController->createReferee($matches[1], $matches[2]);
+    public function run(): void
+    {
+        $this->tennisController->createReferee($this->matches[1], $this->matches[2]);
     }
 }
